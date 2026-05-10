@@ -50,7 +50,7 @@ async function NotesContent({ searchParams }: NotesPageProps) {
         <NoteList notes={notes} selectedId={selectedId} />
       </div>
       <div className="md:col-span-2 flex flex-col overflow-hidden border rounded-lg bg-card text-card-foreground shadow-sm">
-        <NoteEditor note={selectedNote} />
+        <NoteEditor key={selectedNote?.id ?? "new-note"} note={selectedNote} />
       </div>
     </div>
   );

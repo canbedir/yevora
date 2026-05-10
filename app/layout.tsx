@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 
-import { SessionProviderWrapper } from "@/components/SessionProviderWrapper";
-
 import "./globals.css";
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -18,8 +16,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Yevora",
-  description: "Your personal developer dashboard",
+  title: {
+    default: "Yevora",
+    template: "%s | Yevora",
+  },
+  description:
+    "An all-in-one developer dashboard for GitHub activity, focus sessions, notes, and weekly momentum.",
 };
 
 interface RootLayoutProps {
@@ -36,7 +38,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        {children}
       </body>
     </html>
   );

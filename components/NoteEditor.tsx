@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Save, Plus } from "lucide-react";
@@ -22,13 +22,6 @@ export function NoteEditor({ note }: NoteEditorProps) {
   const [title, setTitle] = useState(note?.title ?? "");
   const [content, setContent] = useState<string | undefined>(note?.content ?? "");
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTitle(note?.title ?? "");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setContent(note?.content ?? "");
-  }, [note]);
 
   const handleSave = async () => {
     if (!title.trim() || !content?.trim()) return;

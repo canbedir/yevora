@@ -1,45 +1,99 @@
-"use client";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { ArrowLeft, Flame, FolderGit2, Search, TimerReset } from "lucide-react";
 
-import { signIn } from "next-auth/react";
+import { LoginPanel } from "@/components/login/LoginPanel";
+import { Badge } from "@/components/ui/badge";
+import { authOptions } from "@/lib/auth";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+export const unstable_instant = false;
 
-function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
+export default async function Page() {
+  const session = await getServerSession(authOptions);
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-      <path d="M9 18c-4.51 2-5-2-7-2" />
-    </svg>
-  );
-}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(236,170,58,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.15),transparent_24%),linear-gradient(180deg,rgba(255,252,247,1),rgba(255,255,255,1))]" />
+      <div className="absolute left-1/2 top-10 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
 
-export default function Page() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Yevora</CardTitle>
-          <CardDescription>Your personal developer dashboard</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full" onClick={() => signIn("github", { callbackUrl: "/dashboard" })}>
-            <GithubIcon className="mr-2 h-4 w-4" />
-            Continue with GitHub
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="rounded-[2rem] border border-border/70 bg-[linear-gradient(160deg,rgba(255,255,255,0.92),rgba(245,240,231,0.9))] p-7 shadow-[0_36px_120px_-70px_rgba(15,23,42,0.55)] md:p-10">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to landing
+          </Link>
+
+          <Badge variant="outline" className="mt-8 rounded-full border-primary/20 bg-background/80 px-3 py-1 text-muted-foreground">
+            Personal developer command center
+          </Badge>
+          <h1 className="mt-6 text-4xl font-bold tracking-tight md:text-5xl">
+            Sign in once.
+            <span className="block bg-gradient-to-r from-primary to-sky-600 bg-clip-text text-transparent">
+              Keep your whole workflow in view.
+            </span>
+          </h1>
+          <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">
+            GitHub data, focus sessions, notes, and streaks live in one quiet interface so
+            you can spend less energy reconstructing context.
+          </p>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {[
+              {
+                icon: FolderGit2,
+                title: "GitHub activity",
+                description: "Repos, pull requests, and issues without context switching.",
+                tone: "text-primary bg-primary/10",
+              },
+              {
+                icon: TimerReset,
+                title: "Focus sessions",
+                description: "Pomodoros tied back to real commit output.",
+                tone: "text-sky-700 bg-sky-500/10",
+              },
+              {
+                icon: Search,
+                title: "Searchable notes",
+                description: "Markdown thoughts saved to Postgres and easy to recover.",
+                tone: "text-amber-700 bg-amber-500/10",
+              },
+              {
+                icon: Flame,
+                title: "Visible momentum",
+                description: "Weekly graphs and streaks that make progress obvious.",
+                tone: "text-emerald-700 bg-emerald-500/10",
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <article
+                  key={item.title}
+                  className="rounded-[1.6rem] border border-border/70 bg-background/80 p-5"
+                >
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.tone}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h2 className="mt-4 text-lg font-semibold tracking-tight">{item.title}</h2>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.description}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="flex items-center">
+          <LoginPanel />
+        </section>
+      </div>
     </div>
   );
 }
