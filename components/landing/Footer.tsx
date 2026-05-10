@@ -10,7 +10,7 @@ export function Footer() {
           <span className="font-semibold text-muted-foreground">Yevora</span>
         </div>
         <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Yevora. Built for developers.
+          &copy; 2026 Yevora. Built for developers.
         </p>
         <div className="flex gap-4">
           <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>

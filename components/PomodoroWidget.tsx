@@ -31,26 +31,10 @@ export function PomodoroWidget() {
       .catch((err) => console.error('Failed to fetch pomodoro sessions', err))
   }, [])
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout
-
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1)
-      }, 1000)
-    } else if (isRunning && timeLeft === 0) {
-      setIsRunning(false)
-      playBeep()
-      handleComplete()
-    }
-
-    return () => clearInterval(interval)
-  }, [isRunning, timeLeft])
-
   const playBeep = () => {
     try {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+        audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
       }
       const ctx = audioContextRef.current
       const osc = ctx.createOscillator()
@@ -84,6 +68,24 @@ export function PomodoroWidget() {
       console.error('Failed to save pomodoro session', error)
     }
   }
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => prev - 1)
+      }, 1000)
+    } else if (isRunning && timeLeft === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsRunning(false)
+      playBeep()
+      handleComplete()
+    }
+
+    return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRunning, timeLeft])
 
   const toggleTimer = () => setIsRunning(!isRunning)
   

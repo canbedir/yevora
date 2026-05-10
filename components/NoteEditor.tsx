@@ -24,7 +24,9 @@ export function NoteEditor({ note }: NoteEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTitle(note?.title ?? "");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setContent(note?.content ?? "");
   }, [note]);
 

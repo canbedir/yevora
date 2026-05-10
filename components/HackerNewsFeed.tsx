@@ -1,4 +1,4 @@
-import { unstable_cacheLife as cacheLife } from 'next/cache'
+import { cacheLife } from 'next/cache'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface HNStory {
