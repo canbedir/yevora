@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
+import { Suspense } from "react";
+
 import { CommitChart } from "@/components/CommitChart";
+import { HackerNewsFeed } from "@/components/HackerNewsFeed";
 import { MetricCards } from "@/components/MetricCards";
+import { PomodoroWidget } from "@/components/PomodoroWidget";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getOpenPRs, getRecentCommits, getUserRepos, groupCommitsByDay } from "@/lib/github";
 
@@ -33,7 +38,15 @@ export default async function Page() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CommitChart data={commitActivity} />
+        <div className="space-y-6">
+          <CommitChart data={commitActivity} />
+        </div>
+        <div className="space-y-6">
+          <PomodoroWidget />
+          <Suspense fallback={<Skeleton className="h-[300px] w-full" />}>
+            <HackerNewsFeed />
+          </Suspense>
+        </div>
       </div>
     </div>
   );
