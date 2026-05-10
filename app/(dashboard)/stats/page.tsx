@@ -1,12 +1,25 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { StatsCharts } from "@/components/StatsCharts";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getRecentCommits, groupCommitsByDay } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
 
-export default async function StatsPage() {
+export default function StatsPage() {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Statistics</h1>
+      <Suspense fallback={<StatsSkeleton />}>
+        <StatsContent />
+      </Suspense>
+    </div>
+  );
+}
+
+async function StatsContent() {
   const session = await getServerSession(authOptions);
 
   if (!session?.accessToken || !session?.user?.id) {
@@ -32,12 +45,26 @@ export default async function StatsPage() {
   const commitActivity = groupCommitsByDay(commits);
 
   return (
+    <StatsCharts
+      commitActivity={commitActivity}
+      pomodoroSessions={pomodoroSessions}
+    />
+  );
+}
+
+function StatsSkeleton() {
+  return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Statistics</h1>
-      <StatsCharts
-        commitActivity={commitActivity}
-        pomodoroSessions={pomodoroSessions}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Skeleton className="h-[280px]" />
+        <Skeleton className="h-[280px]" />
+      </div>
     </div>
   );
 }
+

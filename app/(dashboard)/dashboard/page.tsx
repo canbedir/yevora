@@ -1,7 +1,6 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-
-import { Suspense } from "react";
 
 import { CommitChart } from "@/components/CommitChart";
 import { HackerNewsFeed } from "@/components/HackerNewsFeed";
@@ -11,7 +10,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getOpenPRs, getRecentCommits, getUserRepos, groupCommitsByDay } from "@/lib/github";
 
-export default async function Page() {
+export default function Page() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+async function DashboardContent() {
   const session = await getServerSession(authOptions);
 
   if (!session?.accessToken) {
@@ -46,6 +53,25 @@ export default async function Page() {
           <Suspense fallback={<Skeleton className="h-[300px] w-full" />}>
             <HackerNewsFeed />
           </Suspense>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-3 gap-4">
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Skeleton className="h-64" />
+        <div className="space-y-6">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-[300px]" />
         </div>
       </div>
     </div>

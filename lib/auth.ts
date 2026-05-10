@@ -6,6 +6,9 @@ import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID ?? "",
@@ -18,22 +21,20 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      if (!session.user) {
-        return session;
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
       }
-
-      session.user.id = user.id;
-
-      const account = await prisma.account.findFirst({
-        where: {
-          userId: user.id,
-          provider: "github",
-        },
-      });
-
-      session.accessToken = account?.access_token ?? null;
-
+      if (account?.access_token) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+      session.accessToken = token.accessToken as string ?? null;
       return session;
     },
   },
