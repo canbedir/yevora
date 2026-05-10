@@ -18,10 +18,14 @@ interface CommitChartProps {
 }
 
 export function CommitChart({ data }: CommitChartProps) {
-  const chartData = data.map((item) => ({
-    ...item,
-    day: new Date(item.date).toLocaleDateString("en-US", { weekday: "short" }),
-  }));
+  const chartData = data.map((item) => {
+    const [year, month, day] = item.date.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return {
+      ...item,
+      day: date.toLocaleDateString("en-US", { weekday: "short" }),
+    };
+  });
 
   return (
     <Card>
