@@ -12,29 +12,37 @@ const columns = [
 
 export function StatsPreviewSection() {
   return (
-    <section id="proof" className="py-24">
-      <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 md:px-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,1.05fr)] lg:items-center">
-        <div className="max-w-xl">
-          <Badge variant="outline" className="rounded-full border-sky-500/20 bg-sky-500/8 px-3 py-1 text-sky-700">
+    <section id="proof" className="relative overflow-hidden py-28">
+      <div className="landing-orb absolute left-[8%] top-24 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
+      <div className="landing-orb landing-orb-delay absolute right-[10%] bottom-18 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl" />
+      <div className="mx-auto grid w-full max-w-[88rem] gap-16 px-5 md:px-8 xl:grid-cols-[minmax(0,0.92fr)_minmax(520px,1.08fr)] xl:items-center">
+        <div className="max-w-xl xl:pr-4">
+          <Badge
+            variant="outline"
+            className="rounded-full border-sky-500/20 bg-sky-500/8 px-4 py-1.5 text-sky-700 shadow-[0_18px_42px_-32px_rgba(14,165,233,0.28)]"
+          >
             Weekly visibility
           </Badge>
-          <h2 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">
+          <h2 className="mt-6 text-4xl font-bold tracking-tight md:text-5xl">
             The dashboard should answer one question fast:
             <span className="block text-muted-foreground">am I actually moving this week?</span>
           </h2>
-          <p className="mt-5 text-lg leading-8 text-muted-foreground">
+          <p className="mt-6 text-lg leading-8 text-muted-foreground">
             Yevora turns raw activity into signals you can act on. Commit graphs, focus time,
             searchable notes, and streak indicators sit next to each other so you can read the
             whole story instead of isolated metrics.
           </p>
-          <div className="mt-8 space-y-4">
+          <div className="mt-10 space-y-4">
             {[
               "GitHub activity stays visible while you work, not after the fact.",
               "Markdown notes become searchable context for tomorrow-you.",
               "Focus sessions convert into proof, not just elapsed time.",
             ].map((item) => (
-              <div key={item} className="flex items-start gap-3">
-                <Sparkles className="mt-1 h-4 w-4 text-primary" />
+              <div
+                key={item}
+                className="landing-panel flex items-start gap-3 rounded-[1.35rem] border border-white/80 bg-background/76 px-4 py-4 shadow-[0_18px_50px_-44px_rgba(15,23,42,0.42)]"
+              >
+                <Sparkles className="mt-1 h-4 w-4 shrink-0 text-primary" />
                 <p className="text-muted-foreground">{item}</p>
               </div>
             ))}
@@ -42,9 +50,9 @@ export function StatsPreviewSection() {
         </div>
 
         <div className="relative">
-          <div className="absolute inset-0 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/12 via-transparent to-sky-500/12 blur-2xl" />
-          <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-background/92 shadow-[0_36px_120px_-60px_rgba(15,23,42,0.55)]">
-            <div className="border-b border-border/70 px-5 py-4">
+          <div className="absolute inset-0 -z-10 rounded-[2.4rem] bg-gradient-to-br from-primary/12 via-transparent to-sky-500/12 blur-2xl" />
+          <div className="landing-panel overflow-hidden rounded-[2.4rem] border border-white/85 bg-background/92 shadow-[0_40px_130px_-62px_rgba(15,23,42,0.52)]">
+            <div className="border-b border-border/70 px-6 py-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -60,16 +68,16 @@ export function StatsPreviewSection() {
               </div>
             </div>
 
-            <div className="grid gap-4 p-5 xl:grid-cols-[1fr_0.82fr]">
-              <div className="rounded-[1.5rem] border border-border/70 bg-muted/25 p-4">
+            <div className="grid gap-5 p-6 xl:grid-cols-[1fr_0.88fr]">
+              <div className="landing-panel rounded-[1.6rem] border border-border/60 bg-[linear-gradient(180deg,rgba(255,255,255,1),rgba(249,247,241,0.92))] p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium">Commit + focus cadence</p>
-                    <p className="text-xs text-muted-foreground">This week</p>
+                    <p className="text-base font-medium">Commit + focus cadence</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">This week</p>
                   </div>
                   <Flame className="h-4 w-4 text-primary" />
                 </div>
-                <div className="mt-6 flex h-44 items-end gap-3">
+                <div className="mt-7 flex h-48 items-end gap-3">
                   {columns.map((column) => (
                     <div key={column.day} className="flex flex-1 flex-col items-center gap-3">
                       <div className="flex w-full flex-col justify-end gap-1">
@@ -91,10 +99,10 @@ export function StatsPreviewSection() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="rounded-[1.5rem] border border-border/70 bg-card p-4">
-                  <p className="text-sm font-medium">Searchable notes</p>
-                  <div className="mt-4 rounded-2xl border border-border/60 bg-background px-3 py-3">
+              <div className="space-y-5">
+                <div className="landing-panel rounded-[1.6rem] border border-border/60 bg-card p-5">
+                  <p className="text-base font-medium">Searchable notes</p>
+                  <div className="mt-4 rounded-[1.25rem] border border-border/60 bg-background px-4 py-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Search className="h-4 w-4" />
                       retry oauth callback
@@ -107,7 +115,7 @@ export function StatsPreviewSection() {
                     ].map((item) => (
                       <div
                         key={item}
-                        className="rounded-2xl bg-muted/35 px-3 py-2 text-sm text-muted-foreground"
+                        className="landing-panel rounded-[1.15rem] bg-muted/35 px-4 py-3 text-sm leading-6 text-muted-foreground"
                       >
                         {item}
                       </div>
@@ -115,8 +123,8 @@ export function StatsPreviewSection() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-border/70 bg-card p-4">
-                  <p className="text-sm font-medium">What you notice instantly</p>
+                <div className="landing-panel rounded-[1.6rem] border border-border/60 bg-card p-5">
+                  <p className="text-base font-medium">What you notice instantly</p>
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     {[
                       { label: "Open PRs", value: "05" },
@@ -126,7 +134,7 @@ export function StatsPreviewSection() {
                     ].map((item) => (
                       <div
                         key={item.label}
-                        className="rounded-2xl border border-border/60 bg-muted/25 px-3 py-3"
+                        className="landing-panel rounded-[1.15rem] border border-border/60 bg-muted/25 px-4 py-4"
                       >
                         <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
                           {item.label}

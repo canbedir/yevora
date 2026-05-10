@@ -42,12 +42,14 @@ interface NavBarProps {
 }
 
 export function NavBar({ user }: NavBarProps) {
-
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-[0_10px_30px_-18px_var(--color-primary)]">
+    <header className="sticky top-0 z-50 border-b border-white/60 bg-[rgba(255,252,247,0.68)] backdrop-blur-2xl">
+      <div className="mx-auto flex h-20 w-full max-w-[88rem] items-center justify-between px-5 md:px-8">
+        <Link
+          href="/"
+          className="group flex items-center gap-3 rounded-full pr-2 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5"
+        >
+          <div className="flex h-11 w-11 items-center justify-center rounded-[1.15rem] border border-white/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.95),rgba(250,242,226,0.88))] text-primary shadow-[0_18px_42px_-26px_var(--color-primary)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5 group-hover:rotate-3 group-hover:shadow-[0_24px_52px_-28px_var(--color-primary)]">
             <Code2 className="h-5 w-5" />
           </div>
           <div>
@@ -58,14 +60,19 @@ export function NavBar({ user }: NavBarProps) {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-1 rounded-full border border-white/80 bg-white/55 p-1.5 shadow-[0_20px_48px_-34px_rgba(15,23,42,0.25)] lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="group relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium text-muted-foreground transition-[color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:text-foreground"
             >
-              {link.label}
+              <span className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(247,242,233,0.92))] opacity-0 scale-[0.94] shadow-[0_18px_36px_-28px_rgba(15,23,42,0.32)] transition-[opacity,transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100 group-hover:shadow-[0_22px_44px_-28px_rgba(15,23,42,0.34)]" />
+              <span className="absolute inset-x-5 bottom-1.5 h-px origin-center scale-x-50 bg-gradient-to-r from-transparent via-primary/65 to-transparent opacity-0 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100 group-hover:opacity-100" />
+              <span className="absolute left-3.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(251,191,36,1),rgba(217,119,6,0.92))] opacity-0 shadow-[0_0_20px_rgba(217,119,6,0.42)] transition-[opacity,transform,scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-0.5" />
+              <span className="relative z-10 block transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-2.5">
+                {link.label}
+              </span>
             </Link>
           ))}
         </nav>
@@ -83,7 +90,7 @@ export function NavBar({ user }: NavBarProps) {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="h-auto rounded-full border border-border/70 bg-background px-2 py-2 shadow-sm"
+                    className="landing-outline-button h-auto rounded-full border border-white/80 bg-white/68 px-2 py-2 shadow-[0_18px_42px_-32px_rgba(15,23,42,0.26)]"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar size="lg" className="border border-border/70">
@@ -121,10 +128,17 @@ export function NavBar({ user }: NavBarProps) {
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" className="hidden rounded-full px-4 sm:inline-flex">
+              <Button
+                asChild
+                variant="ghost"
+                className="landing-outline-button hidden rounded-full border border-white/70 bg-white/45 px-4 backdrop-blur-sm sm:inline-flex hover:border-primary/18 hover:bg-white/72 hover:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.28)]"
+              >
                 <Link href="/login">Sign in</Link>
               </Button>
-              <Button asChild className="rounded-full px-5 shadow-[0_16px_36px_-18px_var(--color-primary)]">
+              <Button
+                asChild
+                className="landing-button rounded-full border border-[#c87410] bg-[#e58b19] px-5 text-primary-foreground shadow-[0_22px_58px_-26px_var(--color-primary)] hover:bg-[#e58b19] hover:shadow-[0_28px_68px_-28px_var(--color-primary)] [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:translate-x-0.5"
+              >
                 <Link href="/login">
                   Launch your board
                   <ArrowUpRight className="ml-2 h-4 w-4" />

@@ -54,37 +54,64 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="border-y border-border/70 bg-[linear-gradient(180deg,rgba(247,244,238,0.75),rgba(255,255,255,0.95))] py-24">
-      <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-        <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
-          <div className="max-w-md">
+    <section
+      id="features"
+      className="relative overflow-hidden border-y border-border/70 bg-[linear-gradient(180deg,rgba(247,244,238,0.76),rgba(255,255,255,0.96))] py-28"
+    >
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent" />
+      <div className="landing-orb absolute left-[-6rem] top-18 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+      <div className="landing-orb landing-orb-delay absolute right-[-4rem] bottom-10 h-40 w-40 rounded-full bg-sky-500/10 blur-3xl" />
+      <div className="mx-auto w-full max-w-[88rem] px-5 md:px-8">
+        <div className="grid gap-12 xl:grid-cols-[0.72fr_1.28fr] xl:items-start">
+          <div className="max-w-lg xl:sticky xl:top-28">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
               Built for daily flow
             </p>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">
               The parts of your day that usually fall through the cracks.
             </h2>
-            <p className="mt-5 text-lg leading-8 text-muted-foreground">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Most dashboards track numbers. Yevora tracks the rhythm behind the numbers:
               what you shipped, how focused you were, and whether you are actually building
               momentum.
             </p>
+            <div className="mt-8 rounded-[1.6rem] border border-white/80 bg-white/58 p-5 shadow-[0_26px_70px_-56px_rgba(15,23,42,0.48)] backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                Design direction
+              </p>
+              <p className="mt-3 text-lg font-semibold tracking-tight">
+                Calm surfaces, fast signal, softer motion.
+              </p>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                Every card now reacts like it belongs to one polished operating system rather
+                than a group of isolated widgets.
+              </p>
+            </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {features.map((feature) => {
               const Icon = feature.icon;
 
               return (
                 <article
                   key={feature.title}
-                  className="group rounded-[1.75rem] border border-border/70 bg-background/88 p-6 shadow-[0_24px_80px_-56px_rgba(15,23,42,0.5)] transition-transform duration-300 hover:-translate-y-1"
+                  className="landing-panel group rounded-[1.9rem] border border-white/85 bg-background/90 p-7 shadow-[0_24px_80px_-56px_rgba(15,23,42,0.5)] hover:border-primary/18"
                 >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${feature.accent}`}>
+                  <div className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-white/85 to-transparent opacity-80" />
+                  <div
+                    className={`relative z-10 flex h-13 w-13 items-center justify-center rounded-[1.15rem] ${feature.accent} shadow-[0_18px_42px_-28px_rgba(15,23,42,0.35)] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] group-hover:-translate-y-0.5`}
+                  >
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-5 text-xl font-semibold tracking-tight">{feature.title}</h3>
-                  <p className="mt-3 leading-7 text-muted-foreground">{feature.description}</p>
+                  <div className="relative z-10">
+                    <h3 className="mt-6 text-[1.35rem] font-semibold tracking-tight">{feature.title}</h3>
+                    <p className="mt-3.5 leading-7 text-muted-foreground">{feature.description}</p>
+                  </div>
+                  <div className="relative z-10 mt-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
+                    Designed for repeat use
+                  </div>
                 </article>
               );
             })}

@@ -15,7 +15,7 @@ export default async function Home() {
   const isAuthenticated = Boolean(session?.user);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,rgba(255,252,247,1),rgba(255,255,255,1))]">
+    <div className="landing-shell flex min-h-screen flex-col overflow-x-clip bg-[linear-gradient(180deg,rgba(255,252,247,1),rgba(255,255,255,1))]">
       <NavBar user={session?.user ?? null} />
       <main className="flex-1">
         <HeroSection isAuthenticated={isAuthenticated} />
