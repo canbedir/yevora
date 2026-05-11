@@ -68,7 +68,7 @@ export function CTASection({ isAuthenticated }: CTASectionProps) {
               <Button
                 asChild
                 size="lg"
-                className="landing-button h-13 w-full rounded-full border border-[#c87410] bg-[#e58b19] px-7 text-primary-foreground shadow-[0_22px_58px_-24px_var(--color-primary)] hover:bg-[#e58b19] hover:shadow-[0_30px_70px_-28px_var(--color-primary)] [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:translate-x-0.5"
+                className="landing-button h-13 w-full rounded-full px-7"
               >
                 <Link href={href}>
                   {label}

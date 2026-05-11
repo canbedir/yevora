@@ -89,8 +89,8 @@ export function NavBar({ user }: NavBarProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="ghost"
-                    className="landing-outline-button h-auto rounded-full border border-white/80 bg-white/68 px-2 py-2 shadow-[0_18px_42px_-32px_rgba(15,23,42,0.26)]"
+                    variant="outline"
+                    className="landing-outline-button h-auto rounded-full px-2 py-2"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar size="lg" className="border border-border/70">
@@ -130,14 +130,14 @@ export function NavBar({ user }: NavBarProps) {
             <>
               <Button
                 asChild
-                variant="ghost"
-                className="landing-outline-button hidden rounded-full border border-white/70 bg-white/45 px-4 backdrop-blur-sm sm:inline-flex hover:border-primary/18 hover:bg-white/72 hover:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.28)]"
+                variant="outline"
+                className="landing-outline-button hidden rounded-full px-4 sm:inline-flex"
               >
                 <Link href="/login">Sign in</Link>
               </Button>
               <Button
                 asChild
-                className="landing-button rounded-full border border-[#c87410] bg-[#e58b19] px-5 text-primary-foreground shadow-[0_22px_58px_-26px_var(--color-primary)] hover:bg-[#e58b19] hover:shadow-[0_28px_68px_-28px_var(--color-primary)] [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:translate-x-0.5"
+                className="landing-button rounded-full px-5"
               >
                 <Link href="/login">
                   Launch your board

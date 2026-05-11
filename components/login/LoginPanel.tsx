@@ -3,10 +3,9 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Clock3, ShieldCheck, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -28,32 +27,94 @@ function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const sessionSignals = [
+  {
+    label: "Identity",
+    value: "GitHub OAuth",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Setup",
+    value: "Under a minute",
+    icon: Clock3,
+  },
+  {
+    label: "Result",
+    value: "Board ready",
+    icon: Sparkles,
+  },
+];
+
+const firstMinuteItems = [
+  "GitHub session connects your identity",
+  "Repos and PRs load into one dashboard",
+  "Land with context already arranged",
+];
+
 export function LoginPanel() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <Card className="w-full rounded-[2rem] border-border/70 bg-background/90 py-0 shadow-[0_36px_120px_-70px_rgba(15,23,42,0.55)]">
-      <CardHeader className="border-b border-border/70 px-6 py-6 text-center sm:px-8">
-        <CardTitle className="text-3xl font-semibold tracking-tight">Welcome back</CardTitle>
-        <CardDescription className="mx-auto max-w-sm text-base leading-7">
-          Connect your GitHub account and drop straight into your dashboard.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6 px-6 py-6 sm:px-8">
-        <div className="rounded-[1.4rem] border border-border/70 bg-[linear-gradient(180deg,rgba(255,251,245,1),rgba(249,246,240,1))] p-5">
-          <p className="text-sm font-medium text-foreground">What happens next</p>
-          <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-            <div className="rounded-2xl bg-background/80 px-3 py-3">
-              GitHub OAuth creates your session and links your developer identity.
-            </div>
-            <div className="rounded-2xl bg-background/80 px-3 py-3">
-              Your dashboard loads repos, open PRs, notes, and momentum widgets.
-            </div>
+    <div className="w-full max-w-[430px]">
+      <div className="rounded-[1.75rem] border border-[#e8dcc9] bg-[#fffdfa] p-6 shadow-[0_14px_30px_rgba(60,45,20,0.05),0_2px_3px_rgba(60,45,20,0.06)] sm:p-7">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-[#f6ecd8] px-3 py-1 text-[0.78rem] font-medium text-[#d28d1d]">
+            Secure GitHub Sign In
+          </span>
+          <span className="rounded-full bg-[#f1ebe1] px-3 py-1 text-[0.78rem] font-medium text-[#746b5f]">
+            Ready in under a minute
+          </span>
+        </div>
+
+        <div className="mt-6">
+          <h2 className="text-[1.9rem] font-semibold leading-tight tracking-[-0.05em] text-[#181411] sm:text-[2.05rem]">
+            Bring your board online.
+          </h2>
+          <p className="mt-3 max-w-[360px] text-[0.96rem] leading-7 text-[#675f55]">
+            Sign in once and step into a dashboard that already knows your
+            repos, review flow, and note trail.
+          </p>
+        </div>
+
+        <div className="mt-7 grid grid-cols-3 gap-4">
+          {sessionSignals.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <div key={item.label} className="text-center">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f3ede4] text-[#cc8717]">
+                  <Icon className="h-4 w-4" />
+                </div>
+                <p className="mt-2.5 text-[0.67rem] font-medium uppercase tracking-[0.12em] text-[#8a8174]">
+                  {item.label}
+                </p>
+                <p className="mt-1 text-[0.92rem] font-medium leading-5 tracking-[-0.02em] text-[#181411]">
+                  {item.value}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 rounded-[1.35rem] bg-[#f6f0e8] px-4 py-4">
+          <p className="text-[0.98rem] font-semibold tracking-[-0.03em] text-[#181411]">
+            Your first minute inside
+          </p>
+
+          <div className="mt-4 space-y-2.5">
+            {firstMinuteItems.map((item, index) => (
+              <div key={item} className="flex items-start gap-4">
+                <div className="w-5 shrink-0 pt-0.5 text-[0.8rem] font-medium text-[#d18a18]">
+                  0{index + 1}
+                </div>
+                <p className="text-[0.92rem] leading-6 text-[#675f55]">{item}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         <Button
-          className="h-12 w-full rounded-full text-base shadow-[0_18px_40px_-20px_var(--color-primary)]"
+          className="mt-6 h-12 w-full rounded-[1rem] border-[#b97713] bg-[#ca8618] text-[0.96rem] font-semibold text-[#fff8ef] shadow-none hover:bg-[#c07f15]"
           disabled={isPending}
           onClick={() =>
             startTransition(() => {
@@ -61,21 +122,41 @@ export function LoginPanel() {
             })
           }
         >
-          <GithubIcon className="mr-2 h-4 w-4" />
+          <GithubIcon className="mr-3 h-4 w-4" />
           {isPending ? "Redirecting to GitHub..." : "Continue with GitHub"}
         </Button>
 
-        <p className="text-center text-sm leading-6 text-muted-foreground">
-          By continuing, you are opening your personal board. Need a quick tour first?{" "}
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="text-[0.95rem] font-semibold tracking-[-0.03em] text-[#181411]">
+              Private by default
+            </p>
+            <p className="mt-1 text-[0.9rem] leading-6 text-[#675f55]">
+              Your personal board opens for your account only.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-[0.95rem] font-semibold tracking-[-0.03em] text-[#181411]">
+              Built for resuming
+            </p>
+            <p className="mt-1 text-[0.9rem] leading-6 text-[#675f55]">
+              Designed to get you moving again fast.
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-5 text-center text-[0.84rem] leading-6 text-[#7b7266]">
+          Need a quick tour first?{" "}
           <Link
             href="/#features"
-            className="font-medium text-foreground underline decoration-primary/40 underline-offset-4"
+            className="font-medium text-[#181411] underline decoration-[#dcb67e] underline-offset-4"
           >
             Explore the features
             <ArrowUpRight className="ml-1 inline h-3.5 w-3.5" />
           </Link>
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

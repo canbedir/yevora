@@ -55,19 +55,19 @@
   --card-foreground: oklch(0.23 0.022 250.8);
   --popover: oklch(0.995 0.004 84.6);
   --popover-foreground: oklch(0.23 0.022 250.8);
-  --primary: oklch(0.69 0.17 63.4);
-  --primary-foreground: oklch(0.18 0.014 250.6);
+  --primary: oklch(0.68 0.185 54.6);
+  --primary-foreground: oklch(0.985 0.01 84);
   --secondary: oklch(0.957 0.009 81.4);
   --secondary-foreground: oklch(0.23 0.022 250.8);
   --muted: oklch(0.95 0.008 84.2);
   --muted-foreground: oklch(0.52 0.022 249.8);
-  --accent: oklch(0.93 0.025 210.4);
-  --accent-foreground: oklch(0.26 0.035 240.4);
+  --accent: oklch(0.95 0.02 74.4);
+  --accent-foreground: oklch(0.24 0.026 250.8);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.89 0.01 80.8);
   --input: oklch(0.89 0.01 80.8);
-  --ring: oklch(0.69 0.17 63.4);
-  --chart-1: oklch(0.69 0.17 63.4);
+  --ring: oklch(0.68 0.185 54.6);
+  --chart-1: oklch(0.68 0.185 54.6);
   --chart-2: oklch(0.7 0.12 209.9);
   --chart-3: oklch(0.63 0.14 154.7);
   --chart-4: oklch(0.62 0.15 26.5);
@@ -75,17 +75,23 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.981 0.006 85.6);
   --sidebar-foreground: oklch(0.23 0.022 250.8);
-  --sidebar-primary: oklch(0.69 0.17 63.4);
-  --sidebar-primary-foreground: oklch(0.18 0.014 250.6);
+  --sidebar-primary: oklch(0.68 0.185 54.6);
+  --sidebar-primary-foreground: oklch(0.985 0.01 84);
   --sidebar-accent: oklch(0.945 0.012 80.8);
   --sidebar-accent-foreground: oklch(0.23 0.022 250.8);
   --sidebar-border: oklch(0.89 0.01 80.8);
-  --sidebar-ring: oklch(0.69 0.17 63.4);
+  --sidebar-ring: oklch(0.68 0.185 54.6);
   --landing-shadow-lg: 0 28px 90px -52px rgba(15, 23, 42, 0.44);
   --landing-shadow-xl: 0 52px 140px -68px rgba(15, 23, 42, 0.58);
   --landing-border: rgba(255, 255, 255, 0.72);
   --landing-highlight:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.08));
+    linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 221, 173, 0.22), rgba(255, 255, 255, 0.06));
+  --brand-orange-shadow: rgba(211, 111, 8, 0.42);
+  --brand-orange-glow: rgba(251, 191, 36, 0.22);
+  --brand-outline-bg:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 248, 239, 0.78));
+  --dashboard-highlight:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
 }
 
 .dark {
@@ -176,6 +182,67 @@
 }
 
 @layer components {
+  /* ── Dashboard shell ───────────────────────────────────────────── */
+
+  .yev-shell {
+    position: relative;
+    isolation: isolate;
+    background: oklch(0.974 0.005 240);
+  }
+
+  /* ── Dashboard cards ───────────────────────────────────────────── */
+
+  .yev-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 18px;
+    backdrop-filter: blur(16px);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 4px 16px -6px rgba(15, 23, 42, 0.1);
+  }
+
+  .yev-card-hover {
+    transition:
+      transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .yev-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 16px 40px -12px rgba(15, 23, 42, 0.18);
+  }
+
+  /* legacy aliases — kept so any remaining page references still work */
+  .dashboard-panel {
+    position: relative;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 18px;
+    backdrop-filter: blur(16px);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 4px 16px -6px rgba(15, 23, 42, 0.1);
+  }
+
+  .dashboard-card-hover {
+    transition:
+      transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dashboard-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 16px 40px -12px rgba(15, 23, 42, 0.18);
+  }
+
+  .dashboard-orb { display: none; }
+
   .landing-shell {
     position: relative;
     isolation: isolate;
@@ -261,11 +328,26 @@
     transform: translate3d(0, 0, 0);
     will-change: transform, box-shadow;
     transition:
-      transform 720ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 720ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 480ms ease,
-      background-color 480ms ease,
-      filter 480ms ease;
+      transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 320ms ease,
+      background-color 320ms ease,
+      filter 320ms ease;
+  }
+
+  .landing-button {
+    box-shadow:
+      0 18px 44px -24px var(--brand-orange-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  }
+
+  .landing-outline-button {
+    border-color: rgba(255, 255, 255, 0.78);
+    background: var(--brand-outline-bg);
+    box-shadow:
+      0 18px 42px -30px rgba(15, 23, 42, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
   }
 
   .landing-button::before,
@@ -282,11 +364,11 @@
   }
 
   .landing-button::before {
-    opacity: 0;
+    opacity: 0.16;
   }
 
   .landing-outline-button::before {
-    opacity: 0.8;
+    opacity: 0.72;
   }
 
   .landing-button::after,
@@ -303,7 +385,24 @@
 
   .landing-button:hover,
   .landing-outline-button:hover {
-    transform: translate3d(0, -2px, 0);
+    transform: translate3d(0, -2px, 0) scale(1.012);
+  }
+
+  .landing-button:hover {
+    box-shadow:
+      0 26px 62px -28px rgba(211, 111, 8, 0.52),
+      0 0 0 1px rgba(255, 210, 138, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    filter: saturate(1.04);
+  }
+
+  .landing-outline-button:hover {
+    border-color: rgba(220, 134, 29, 0.22);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 244, 227, 0.88));
+    box-shadow:
+      0 24px 56px -34px rgba(198, 112, 27, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.84);
   }
 
   .landing-button:hover::before {
@@ -337,6 +436,7 @@
   .landing-panel,
   .landing-button,
   .landing-outline-button,
+  .dashboard-card-hover,
   .landing-orb,
   .landing-glow {
     animation: none !important;

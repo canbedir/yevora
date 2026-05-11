@@ -69,7 +69,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
             {rhythmTags.map((tag) => (
               <span
                 key={tag}
-                className="landing-outline-button rounded-full border border-white/75 bg-background/72 px-3 py-1.5 text-[0.72rem] font-medium uppercase tracking-[0.16em] text-muted-foreground shadow-[0_16px_34px_-30px_rgba(15,23,42,0.24)]"
+                className="landing-outline-button rounded-full px-3 py-1.5 text-[0.72rem] font-medium uppercase tracking-[0.16em] text-muted-foreground"
               >
                 {tag}
               </span>
@@ -94,7 +94,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
             <Button
               asChild
               size="lg"
-              className="landing-button h-13 rounded-full border border-[#c87410] bg-[#e58b19] px-7 text-[0.95rem] text-primary-foreground shadow-[0_26px_70px_-28px_var(--color-primary)] hover:bg-[#e58b19] hover:shadow-[0_34px_84px_-30px_var(--color-primary)] [&_svg]:transition-transform [&_svg]:duration-500 hover:[&_svg]:translate-x-0.5"
+              className="landing-button h-13 rounded-full px-7 text-[0.95rem]"
             >
               <Link href={ctaHref}>
                 {ctaLabel}
@@ -105,7 +105,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
               asChild
               variant="outline"
               size="lg"
-              className="landing-outline-button h-13 rounded-full border-white/75 bg-white/78 px-7 text-[0.95rem] backdrop-blur hover:border-primary/18 hover:bg-white/88 hover:shadow-[0_24px_52px_-34px_rgba(15,23,42,0.28)]"
+              className="landing-outline-button h-13 rounded-full px-7 text-[0.95rem]"
             >
               <Link href="#proof">See the workflow</Link>
             </Button>

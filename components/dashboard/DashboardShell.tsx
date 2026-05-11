@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { ComponentType, ReactNode } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   BarChart2,
+  ChevronRight,
   FileText,
   GitBranch,
   LayoutDashboard,
@@ -19,11 +21,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -44,72 +44,109 @@ const navItems: NavItem[] = [
   { href: "/stats", label: "Stats", icon: BarChart2 },
 ];
 
-interface SidebarNavProps {
-  pathname: string;
-}
+/* ─── Sidebar Nav ─────────────────────────────────────────────────────────── */
 
-function SidebarNav({ pathname }: SidebarNavProps) {
+function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
-    <nav className="space-y-1">
+    <nav className="flex flex-col gap-1">
       {navItems.map((item) => {
-        const isActive = pathname === item.href;
+        const isActive =
+          pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
 
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent",
-              isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
-            )}
-          >
-            <Icon className="h-4 w-4" />
-            <span>{item.label}</span>
-          </Link>
+          <div key={item.href} className="relative">
+            <AnimatePresence>
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-pill"
+                  className="absolute inset-0 rounded-xl bg-white/90 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.18)] border border-white/80"
+                  transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.4 }}
+                />
+              )}
+            </AnimatePresence>
+            <Link
+              href={item.href}
+              onClick={onNavigate}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "relative z-10 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+                isActive
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/50"
+              )}
+            >
+              <Icon
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground/70"
+                )}
+              />
+              {item.label}
+            </Link>
+          </div>
         );
       })}
     </nav>
   );
 }
 
-interface UserMenuProps {
+/* ─── User Avatar Button ──────────────────────────────────────────────────── */
+
+function UserMenu({
+  name,
+  email,
+  image,
+  compact = false,
+}: {
   name?: string | null;
   email?: string | null;
   image?: string | null;
-}
-
-function UserMenu({ name, email, image }: UserMenuProps) {
+  compact?: boolean;
+}) {
   const initials =
     name
       ?.trim()
       .split(/\s+/)
       .slice(0, 2)
-      .map((part) => part[0])
+      .map((p) => p[0])
       .join("")
       .toUpperCase() ?? "U";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-auto w-full justify-start gap-3 px-2 py-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={image ?? undefined} alt={name ?? "User"} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 text-left">
-            <p className="truncate text-sm font-medium">{name ?? "User"}</p>
-            <p className="truncate text-xs text-muted-foreground">{email ?? "No email"}</p>
-          </div>
-        </Button>
+        {compact ? (
+          <button className="group outline-none">
+            <Avatar className="h-8 w-8 ring-2 ring-white/80 ring-offset-1 ring-offset-transparent transition-shadow duration-200 group-hover:ring-primary/30">
+              <AvatarImage src={image ?? undefined} alt={name ?? "User"} />
+              <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
+            </Avatar>
+          </button>
+        ) : (
+          <button className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors duration-200 hover:bg-white/60 outline-none">
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarImage src={image ?? undefined} alt={name ?? "User"} />
+              <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-foreground">{name ?? "User"}</p>
+              <p className="truncate text-xs text-muted-foreground">{email ?? ""}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </button>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel className="space-y-1">
-          <p>{name ?? "User"}</p>
-          <p className="font-normal text-muted-foreground">{email ?? "No email"}</p>
-        </DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="px-2 py-1.5">
+          <p className="text-sm font-medium">{name ?? "User"}</p>
+          <p className="text-xs text-muted-foreground">{email ?? ""}</p>
+        </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="cursor-pointer text-destructive focus:text-destructive"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Sign out
         </DropdownMenuItem>
@@ -118,69 +155,109 @@ function UserMenu({ name, email, image }: UserMenuProps) {
   );
 }
 
+/* ─── Sidebar Content (shared between fixed + sheet) ─────────────────────── */
+
+function SidebarContent({
+  pathname,
+  session,
+  onNavigate,
+}: {
+  pathname: string;
+  session: { user?: { name?: string | null; email?: string | null; image?: string | null } } | null;
+  onNavigate?: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      {/* Brand */}
+      <div className="px-3 pt-4 pb-5">
+        <Link href="/" className="flex items-center gap-2.5 px-1 outline-none group" onClick={onNavigate}>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-sky-400 text-sm font-bold text-slate-950 shadow-sm transition-transform duration-200 group-hover:scale-105">
+            Y
+          </span>
+          <span className="text-[15px] font-semibold tracking-tight text-foreground">Yevora</span>
+        </Link>
+      </div>
+
+      {/* Nav */}
+      <div className="flex-1 overflow-y-auto px-3">
+        <SidebarNav pathname={pathname} onNavigate={onNavigate} />
+      </div>
+
+      {/* User */}
+      <div className="border-t border-black/[0.06] px-2 py-3">
+        <UserMenu
+          name={session?.user?.name}
+          email={session?.user?.email}
+          image={session?.user?.image}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Shell ───────────────────────────────────────────────────────────────── */
+
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const activeItem = navItems.find(
+    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`)
+  ) ?? navItems[0];
+  const ActiveIcon = activeItem.icon;
 
   return (
-    <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 hidden w-60 border-r bg-card md:flex md:flex-col">
-        <div className="px-4 py-4">
-          <Link href="/dashboard" className="text-lg font-semibold">
-            Yevora
-          </Link>
-        </div>
-        <Separator />
-        <div className="flex-1 p-4">
-          <SidebarNav pathname={pathname} />
-        </div>
-        <Separator />
-        <div className="p-4">
+    <div className="yev-shell min-h-screen">
+      {/* Fixed Desktop Sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-black/[0.06] bg-[rgba(249,249,251,0.92)] backdrop-blur-xl lg:block">
+        <SidebarContent pathname={pathname} session={session} />
+      </aside>
+
+      {/* Main content area */}
+      <div className="lg:pl-56">
+        {/* Top bar */}
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-black/[0.06] bg-white/80 backdrop-blur-xl px-4 lg:px-6">
+          {/* Left: Mobile menu + Page title */}
+          <div className="flex items-center gap-3">
+            {/* Mobile hamburger */}
+            <div className="lg:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/5"
+                  >
+                    <Menu className="h-4 w-4" />
+                    <span className="sr-only">Open navigation</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="w-56 p-0 border-r border-black/[0.06] bg-[rgba(249,249,251,0.96)]"
+                >
+                  <SidebarContent pathname={pathname} session={session} />
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* Page title */}
+            <div className="flex items-center gap-2">
+              <ActiveIcon className="h-4 w-4 text-muted-foreground" />
+              <h1 className="text-sm font-semibold text-foreground">{activeItem.label}</h1>
+            </div>
+          </div>
+
+          {/* Right: Avatar */}
           <UserMenu
             name={session?.user?.name}
             email={session?.user?.email}
             image={session?.user?.image}
+            compact
           />
-        </div>
-      </aside>
-
-      <div className="md:pl-60">
-        <header className="sticky top-0 z-20 border-b bg-background/80 px-4 py-3 backdrop-blur md:hidden">
-          <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="text-base font-semibold">
-              Yevora
-            </Link>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="h-4 w-4" />
-                  <span className="sr-only">Open navigation</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0">
-                <div className="px-4 py-4">
-                  <Link href="/dashboard" className="text-lg font-semibold">
-                    Yevora
-                  </Link>
-                </div>
-                <Separator />
-                <div className="p-4">
-                  <SidebarNav pathname={pathname} />
-                </div>
-                <Separator />
-                <div className="p-4">
-                  <UserMenu
-                    name={session?.user?.name}
-                    email={session?.user?.email}
-                    image={session?.user?.image}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
         </header>
 
-        <main className="p-4 md:p-6">{children}</main>
+        {/* Page content */}
+        <main className="px-4 py-6 lg:px-6 lg:py-8">{children}</main>
       </div>
     </div>
   );

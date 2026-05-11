@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { Clock3, Pause, Play, RotateCcw, Sparkles } from 'lucide-react'
+
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Play, Pause, RotateCcw } from 'lucide-react'
+import { Progress } from '@/components/ui/progress'
 
 const DEFAULT_TIME = 25 * 60
 
@@ -14,24 +16,31 @@ export function PomodoroWidget() {
   const [isRunning, setIsRunning] = useState(false)
   const [completedToday, setCompletedToday] = useState(0)
   const [label, setLabel] = useState('')
-  
+
   const audioContextRef = useRef<AudioContext | null>(null)
 
   useEffect(() => {
-    // Fetch initial completed sessions for today
+    let isMounted = true
+
     fetch('/api/pomodoro')
-      .then((res) => res.json())
+      .then((response) => response.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          const today = new Date().toISOString().split('T')[0]
-          const todaySessions = data.filter((s) => s.completedAt.startsWith(today))
-          setCompletedToday(todaySessions.length)
+        if (!isMounted || !Array.isArray(data)) {
+          return
         }
+
+        const today = new Date().toISOString().split('T')[0]
+        const todaySessions = data.filter((session) => session.completedAt.startsWith(today))
+        setCompletedToday(todaySessions.length)
       })
-      .catch((err) => console.error('Failed to fetch pomodoro sessions', err))
+      .catch((error) => console.error('Failed to fetch pomodoro sessions', error))
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
-  const playBeep = () => {
+  const playBeep = useEffectEvent(() => {
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
@@ -52,9 +61,9 @@ export function PomodoroWidget() {
     } catch (e) {
       console.error('Audio playback failed', e)
     }
-  }
+  })
 
-  const handleComplete = async () => {
+  const handleComplete = useEffectEvent(async () => {
     try {
       const res = await fetch('/api/pomodoro', {
         method: 'POST',
@@ -67,28 +76,32 @@ export function PomodoroWidget() {
     } catch (error) {
       console.error('Failed to save pomodoro session', error)
     }
-  }
+  })
 
   useEffect(() => {
-    let interval: NodeJS.Timeout
-
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1)
-      }, 1000)
-    } else if (isRunning && timeLeft === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsRunning(false)
-      playBeep()
-      handleComplete()
+    if (!isRunning || timeLeft === 0) {
+      return
     }
 
-    return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const interval = window.setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          window.clearInterval(interval)
+          setIsRunning(false)
+          playBeep()
+          void handleComplete()
+          return 0
+        }
+
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => window.clearInterval(interval)
   }, [isRunning, timeLeft])
 
   const toggleTimer = () => setIsRunning(!isRunning)
-  
+
   const resetTimer = () => {
     setIsRunning(false)
     setTimeLeft(DEFAULT_TIME)
@@ -99,34 +112,58 @@ export function PomodoroWidget() {
   const progress = (1 - timeLeft / DEFAULT_TIME) * 100
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex justify-between items-center">
-          Pomodoro timer
-          <span className="text-sm font-normal text-muted-foreground">
+    <Card className="dashboard-panel rounded-[30px] border-0 py-0">
+      <CardHeader className="border-b border-white/60 px-6 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock3 className="h-5 w-5 text-primary" />
+              Focus session
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Start a clean 25 minute sprint and keep your flow visible.
+            </p>
+          </div>
+          <Badge variant="outline" className="gap-1.5 border-white/70 bg-white/70 px-2.5 py-1 text-[11px]">
+            <Sparkles className="h-3 w-3" />
             {completedToday} completed today
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="text-6xl font-bold text-center tabular-nums py-4">
-          {minutes}:{seconds}
+          </Badge>
         </div>
-        
-        <Progress value={progress} className="h-2" />
-        
-        <div className="flex gap-2">
-          <Input 
-            placeholder="What are you working on?" 
+      </CardHeader>
+      <CardContent className="space-y-6 px-6 py-6">
+        <div className="rounded-[26px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(249,250,251,0.78))] px-6 py-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
+          <div className="mb-2 text-center text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+            {isRunning ? 'Session in progress' : 'Ready to focus'}
+          </div>
+          <div className="text-center text-6xl font-bold tabular-nums">
+          {minutes}:{seconds}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>Progress</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <Progress value={progress} className="h-2.5 bg-white/65" />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Current task
+          </label>
+          <Input
+            placeholder="What are you working on?"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             disabled={isRunning}
+            className="h-11 rounded-2xl border-white/70 bg-white/80"
           />
         </div>
 
         <div className="flex gap-2 justify-center">
-          <Button 
-            onClick={toggleTimer} 
+          <Button
+            onClick={toggleTimer}
             className="w-full flex-1"
             variant={isRunning ? 'secondary' : 'default'}
           >
