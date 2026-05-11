@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { RepoList } from "@/components/RepoList";
@@ -7,7 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getUserRepos } from "@/lib/github";
 
-export default function ReposPage() {
+export default async function ReposPage() {
+  await connection();
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Repositories</h1>
@@ -39,4 +42,3 @@ function ReposSkeleton() {
     </div>
   );
 }
-

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { NoteEditor } from "@/components/NoteEditor";
@@ -12,7 +13,9 @@ interface NotesPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default function NotesPage({ searchParams }: NotesPageProps) {
+export default async function NotesPage({ searchParams }: NotesPageProps) {
+  await connection();
+
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       <h1 className="text-3xl font-bold tracking-tight mb-6">Notes</h1>

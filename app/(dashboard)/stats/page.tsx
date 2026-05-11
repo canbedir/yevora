@@ -1,14 +1,19 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getServerSession } from "next-auth";
+import type { PomodoroSession } from "@prisma/client";
 
 import { StatsCharts } from "@/components/StatsCharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getRecentCommits, groupCommitsByDay } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
+import type { GitHubCommit } from "@/types/github";
 
-export default function StatsPage() {
+export default async function StatsPage() {
+  await connection();
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Statistics</h1>
@@ -30,16 +35,23 @@ async function StatsContent() {
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const commitsPromise: Promise<GitHubCommit[]> = username
+    ? getRecentCommits(session.accessToken, username)
+    : Promise.resolve<GitHubCommit[]>([]);
+  const pomodoroSessionsPromise: Promise<PomodoroSession[]> = prisma.pomodoroSession.findMany({
+    where: {
+      userId: session.user.id,
+      completedAt: { gte: thirtyDaysAgo },
+    },
+    orderBy: { completedAt: "asc" },
+  });
 
-  const [commits, pomodoroSessions] = await Promise.all([
-    username ? getRecentCommits(session.accessToken, username) : Promise.resolve([]),
-    prisma.pomodoroSession.findMany({
-      where: {
-        userId: session.user.id,
-        completedAt: { gte: thirtyDaysAgo },
-      },
-      orderBy: { completedAt: "asc" },
-    }),
+  const [commits, pomodoroSessions]: [
+    GitHubCommit[],
+    PomodoroSession[],
+  ] = await Promise.all([
+    commitsPromise,
+    pomodoroSessionsPromise,
   ]);
 
   const commitActivity = groupCommitsByDay(commits);
@@ -67,4 +79,3 @@ function StatsSkeleton() {
     </div>
   );
 }
-

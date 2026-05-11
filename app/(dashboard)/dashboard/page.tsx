@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getServerSession } from "next-auth";
+import type { PomodoroSession } from "@prisma/client";
 import {
   ArrowRight,
   Clock3,
@@ -22,9 +24,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getOpenPRs, getRecentCommits, getUserRepos, groupCommitsByDay } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
-import type { GitHubCommit, GitHubRepo } from "@/types/github";
+import type { GitHubCommit, GitHubPR, GitHubRepo } from "@/types/github";
 
-export default function Page() {
+export default async function Page() {
+  await connection();
+
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <DashboardContent />
@@ -45,57 +49,72 @@ async function DashboardContent() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const reposPromise: Promise<GitHubRepo[]> = getUserRepos(session.accessToken);
+  const openPrsPromise: Promise<GitHubPR[]> = getOpenPRs(session.accessToken);
+  const commitsPromise: Promise<GitHubCommit[]> = username
+    ? getRecentCommits(session.accessToken, username)
+    : Promise.resolve<GitHubCommit[]>([]);
+  const pomodoroSessionsPromise: Promise<PomodoroSession[]> = prisma.pomodoroSession.findMany({
+    where: {
+      userId: session.user.id,
+      completedAt: { gte: thirtyDaysAgo },
+    },
+    orderBy: { completedAt: "desc" },
+    take: 24,
+  });
+  const noteCountPromise = prisma.note.count({
+    where: {
+      userId: session.user.id,
+    },
+  });
+  const recentNotesPromise = prisma.note.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+    take: 3,
+    select: {
+      id: true,
+      title: true,
+      updatedAt: true,
+    },
+  });
 
-  const [repos, openPRs, commits, pomodoroSessions, noteCount, recentNotes] = await Promise.all([
-    getUserRepos(session.accessToken),
-    getOpenPRs(session.accessToken),
-    username ? getRecentCommits(session.accessToken, username) : Promise.resolve([]),
-    prisma.pomodoroSession.findMany({
-      where: {
-        userId: session.user.id,
-        completedAt: { gte: thirtyDaysAgo },
-      },
-      orderBy: { completedAt: "desc" },
-      take: 24,
-    }),
-    prisma.note.count({
-      where: {
-        userId: session.user.id,
-      },
-    }),
-    prisma.note.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        updatedAt: true,
-      },
-    }),
+  const [repos, openPRs, commits, pomodoroSessions, noteCount, recentNotes]: [
+    GitHubRepo[],
+    GitHubPR[],
+    GitHubCommit[],
+    PomodoroSession[],
+    number,
+    Awaited<typeof recentNotesPromise>,
+  ] = await Promise.all([
+    reposPromise,
+    openPrsPromise,
+    commitsPromise,
+    pomodoroSessionsPromise,
+    noteCountPromise,
+    recentNotesPromise,
   ]);
 
   const commitActivity = groupCommitsByDay(commits);
   const weeklyCommits = commitActivity.reduce((total, item) => total + item.count, 0);
-  const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+  const totalStars = repos.reduce((sum: number, repo: GitHubRepo) => sum + repo.stargazers_count, 0);
   const activeRepos = repos.filter((repo) => new Date(repo.updated_at) >= thirtyDaysAgo).length;
   const privateRepos = repos.filter((repo) => repo.private).length;
   const commitStreak = getContributionStreak(commitActivity);
   const topLanguage = getTopLanguage(repos);
   const mostStarredRepo = [...repos].sort((left, right) => right.stargazers_count - left.stargazers_count)[0];
   const focusMinutesThisWeek = pomodoroSessions
-    .filter((sessionItem) => new Date(sessionItem.completedAt) >= sevenDaysAgo)
-    .reduce((sum, sessionItem) => sum + sessionItem.duration, 0);
+    .filter((sessionItem: PomodoroSession) => new Date(sessionItem.completedAt) >= sevenDaysAgo)
+    .reduce((sum: number, sessionItem: PomodoroSession) => sum + sessionItem.duration, 0);
   const sessionsThisWeek = pomodoroSessions.filter(
-    (sessionItem) => new Date(sessionItem.completedAt) >= sevenDaysAgo
+    (sessionItem: PomodoroSession) => new Date(sessionItem.completedAt) >= sevenDaysAgo
   ).length;
   const todayKey = toDateKey(new Date());
   const focusToday = pomodoroSessions.filter(
-    (sessionItem) => toDateKey(new Date(sessionItem.completedAt)) === todayKey
+    (sessionItem: PomodoroSession) => toDateKey(new Date(sessionItem.completedAt)) === todayKey
   );
   const topRepos = [...repos]
     .sort((left, right) => new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime())
