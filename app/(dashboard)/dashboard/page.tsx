@@ -22,7 +22,13 @@ import { PomodoroWidget } from "@/components/PomodoroWidget";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
-import { getOpenPRs, getRecentCommits, getUserRepos, groupCommitsByDay } from "@/lib/github";
+import {
+  getAuthenticatedGitHubUser,
+  getOpenPRs,
+  getRecentCommits,
+  getUserRepos,
+  groupCommitsByDay,
+} from "@/lib/github";
 import { prisma } from "@/lib/prisma";
 import type { GitHubCommit, GitHubPR, GitHubRepo } from "@/types/github";
 
@@ -43,17 +49,22 @@ async function DashboardContent() {
     redirect("/login");
   }
 
-  const username = session.user.name ?? "";
+  const accessToken = session.accessToken;
   const displayName = session.user.name?.split(" ")[0] ?? "Developer";
+  const githubUserPromise = session.user.githubUsername
+    ? Promise.resolve({ login: session.user.githubUsername })
+    : getAuthenticatedGitHubUser(accessToken);
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const reposPromise: Promise<GitHubRepo[]> = getUserRepos(session.accessToken);
-  const openPrsPromise: Promise<GitHubPR[]> = getOpenPRs(session.accessToken);
-  const commitsPromise: Promise<GitHubCommit[]> = username
-    ? getRecentCommits(session.accessToken, username)
-    : Promise.resolve<GitHubCommit[]>([]);
+  const reposPromise: Promise<GitHubRepo[]> = getUserRepos(accessToken);
+  const openPrsPromise: Promise<GitHubPR[]> = githubUserPromise.then((githubUser) =>
+    getOpenPRs(accessToken, githubUser.login)
+  );
+  const commitsPromise: Promise<GitHubCommit[]> = githubUserPromise.then((githubUser) =>
+    getRecentCommits(accessToken, githubUser.login)
+  );
   const pomodoroSessionsPromise: Promise<PomodoroSession[]> = prisma.pomodoroSession.findMany({
     where: {
       userId: session.user.id,
@@ -99,11 +110,12 @@ async function DashboardContent() {
   ]);
 
   const commitActivity = groupCommitsByDay(commits);
+  const commitStreakActivity = groupCommitsByDay(commits, 30);
   const weeklyCommits = commitActivity.reduce((total, item) => total + item.count, 0);
   const totalStars = repos.reduce((sum: number, repo: GitHubRepo) => sum + repo.stargazers_count, 0);
   const activeRepos = repos.filter((repo) => new Date(repo.updated_at) >= thirtyDaysAgo).length;
   const privateRepos = repos.filter((repo) => repo.private).length;
-  const commitStreak = getContributionStreak(commitActivity);
+  const commitStreak = getContributionStreak(commitStreakActivity);
   const topLanguage = getTopLanguage(repos);
   const mostStarredRepo = [...repos].sort((left, right) => right.stargazers_count - left.stargazers_count)[0];
   const focusMinutesThisWeek = pomodoroSessions
@@ -527,8 +539,13 @@ function MiniMetric({
 
 function getContributionStreak(activity: { count: number }[]) {
   let streak = 0;
+  let index = activity.length - 1;
 
-  for (let index = activity.length - 1; index >= 0; index -= 1) {
+  if (activity[index]?.count === 0) {
+    index -= 1;
+  }
+
+  for (; index >= 0; index -= 1) {
     if (activity[index].count > 0) {
       streak += 1;
       continue;

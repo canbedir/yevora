@@ -7,7 +7,7 @@ import type { PomodoroSession } from "@prisma/client";
 import { StatsCharts } from "@/components/StatsCharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
-import { getRecentCommits, groupCommitsByDay } from "@/lib/github";
+import { getAuthenticatedGitHubUser, getRecentCommits, groupCommitsByDay } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
 import type { GitHubCommit } from "@/types/github";
 
@@ -31,13 +31,15 @@ async function StatsContent() {
     redirect("/login");
   }
 
-  const username = session.user.name ?? "";
-
+  const accessToken = session.accessToken;
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const commitsPromise: Promise<GitHubCommit[]> = username
-    ? getRecentCommits(session.accessToken, username)
-    : Promise.resolve<GitHubCommit[]>([]);
+  const githubUserPromise = session.user.githubUsername
+    ? Promise.resolve({ login: session.user.githubUsername })
+    : getAuthenticatedGitHubUser(accessToken);
+  const commitsPromise: Promise<GitHubCommit[]> = githubUserPromise.then((githubUser) =>
+    getRecentCommits(accessToken, githubUser.login)
+  );
   const pomodoroSessionsPromise: Promise<PomodoroSession[]> = prisma.pomodoroSession.findMany({
     where: {
       userId: session.user.id,
@@ -55,10 +57,12 @@ async function StatsContent() {
   ]);
 
   const commitActivity = groupCommitsByDay(commits);
+  const commitStreakActivity = groupCommitsByDay(commits, 30);
 
   return (
     <StatsCharts
       commitActivity={commitActivity}
+      commitStreakActivity={commitStreakActivity}
       pomodoroSessions={pomodoroSessions}
     />
   );

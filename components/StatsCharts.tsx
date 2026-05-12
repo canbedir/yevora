@@ -15,12 +15,19 @@ interface PomodoroSessionData {
 
 interface StatsChartsProps {
   commitActivity: CommitActivity[];
+  commitStreakActivity?: CommitActivity[];
   pomodoroSessions: PomodoroSessionData[];
 }
 
 function calculateStreak(activities: CommitActivity[]): number {
   let streak = 0;
-  for (let i = activities.length - 1; i >= 0; i--) {
+  let i = activities.length - 1;
+
+  if (activities[i]?.count === 0) {
+    i--;
+  }
+
+  for (; i >= 0; i--) {
     if (activities[i].count > 0) {
       streak++;
     } else {
@@ -44,7 +51,7 @@ function getLocalISODate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function StatsCharts({ commitActivity, pomodoroSessions }: StatsChartsProps) {
+export function StatsCharts({ commitActivity, commitStreakActivity, pomodoroSessions }: StatsChartsProps) {
   const commitData = useMemo(() => {
     return commitActivity.map((item) => {
       const [year, month, day] = item.date.split("-").map(Number);
@@ -56,7 +63,7 @@ export function StatsCharts({ commitActivity, pomodoroSessions }: StatsChartsPro
     });
   }, [commitActivity]);
 
-  const streak = calculateStreak(commitActivity);
+  const streak = calculateStreak(commitStreakActivity ?? commitActivity);
 
   const pomodoroData = useMemo(() => {
     const counts: Record<string, number> = {};
