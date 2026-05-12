@@ -100,7 +100,7 @@ export function FeaturesSection() {
                 >
                   <div className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-white/85 to-transparent opacity-80" />
                   <div
-                    className={`relative z-10 flex h-13 w-13 items-center justify-center rounded-[1.15rem] ${feature.accent} shadow-[0_18px_42px_-28px_rgba(15,23,42,0.35)] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] group-hover:-translate-y-0.5`}
+                    className={`relative z-10 flex h-13 w-13 items-center justify-center rounded-[1.15rem] ${feature.accent} shadow-[0_18px_42px_-28px_rgba(15,23,42,0.35)] transition-shadow duration-200 ease-out group-hover:shadow-[0_20px_44px_-30px_rgba(15,23,42,0.38)]`}
                   >
                     <Icon className="h-5 w-5" />
                   </div>

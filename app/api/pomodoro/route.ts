@@ -26,12 +26,19 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
+  const duration = Number(body.duration)
+  const safeDuration = Number.isFinite(duration)
+    ? Math.min(180, Math.max(1, Math.round(duration)))
+    : 25
+  const label = typeof body.label === 'string' && body.label.trim().length > 0
+    ? body.label.trim()
+    : null
 
   const record = await prisma.pomodoroSession.create({
     data: {
       userId: session.user.id,
-      duration: body.duration ?? 25,
-      label: body.label ?? null,
+      duration: safeDuration,
+      label,
     },
   })
 

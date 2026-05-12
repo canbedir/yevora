@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
+import { FileText, Search, Trash2 } from "lucide-react";
 
 import { deleteNote } from "@/app/actions/notes";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import type { Note } from "@prisma/client";
 
 function stripMarkdown(text: string) {
-  return text.replace(/[#*`_\[\]()]/g, "").trim();
+  return text.replace(/[#*`_[\]()]/g, "").trim();
 }
 
 interface NoteListProps {
@@ -35,88 +35,120 @@ export function NoteList({ notes, selectedId }: NoteListProps) {
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
+    const delayDebounceFn = window.setTimeout(() => {
       const params = new URLSearchParams(searchParams);
       if (search) {
         params.set("q", search);
       } else {
         params.delete("q");
       }
-      router.replace(`/notes?${params.toString()}`);
-    }, 300);
+      const query = params.toString();
+      router.replace(query ? `/notes?${query}` : "/notes");
+    }, 250);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => window.clearTimeout(delayDebounceFn);
   }, [search, router, searchParams]);
 
   const handleDelete = async () => {
-    if (noteToDelete) {
-      await deleteNote(noteToDelete);
-      setNoteToDelete(null);
-      if (selectedId === noteToDelete) {
-        router.push("/notes");
-      }
+    if (!noteToDelete) return;
+
+    await deleteNote(noteToDelete);
+    setNoteToDelete(null);
+
+    if (selectedId === noteToDelete) {
+      router.push("/notes");
     }
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
-        <Input
-          placeholder="Search notes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <div className="flex h-full flex-col bg-white">
+      <div className="border-b border-neutral-200 p-4">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+          <Input
+            placeholder="Search notes..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="h-9 rounded-md border-neutral-200 bg-neutral-50 pl-9"
+          />
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm font-semibold text-neutral-950">All notes</p>
+          <p className="text-xs text-neutral-500">{notes.length} notes</p>
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+
+      <div className="flex-1 overflow-y-auto">
         {notes.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No notes found.
+          <div className="px-4 py-10 text-center">
+            <p className="text-sm font-medium text-neutral-950">No notes found</p>
+            <p className="mt-1 text-sm text-neutral-500">Create a note or change your search.</p>
           </div>
         ) : (
-          notes.map((note) => (
-            <div
-              key={note.id}
-              className={cn(
-                "p-3 rounded-md cursor-pointer transition-colors group border border-transparent hover:border-border",
-                selectedId === note.id ? "bg-accent" : "hover:bg-accent/50"
-              )}
-              onClick={() => {
-                const params = new URLSearchParams(searchParams);
-                params.set("selected", note.id);
-                router.push(`/notes?${params.toString()}`);
-              }}
-            >
-              <div className="flex justify-between items-start">
-                <div className="font-semibold truncate pr-2">{note.title || "Untitled"}</div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setNoteToDelete(note.id);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+          <div className="divide-y divide-neutral-200">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                role="button"
+                tabIndex={0}
+                className={cn(
+                  "group flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-neutral-50",
+                  selectedId === note.id && "bg-neutral-100"
+                )}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set("selected", note.id);
+                  router.push(`/notes?${params.toString()}`);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" && event.key !== " ") return;
+
+                  event.preventDefault();
+                  const params = new URLSearchParams(searchParams);
+                  params.set("selected", note.id);
+                  router.push(`/notes?${params.toString()}`);
+                }}
+              >
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-neutral-600">
+                  <FileText className="h-4 w-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-start justify-between gap-3">
+                    <span className="truncate text-sm font-semibold text-neutral-950">
+                      {note.title || "Untitled"}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="shrink-0 opacity-0 group-hover:opacity-100"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setNoteToDelete(note.id);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      <span className="sr-only">Delete note</span>
+                    </Button>
+                  </span>
+                  <span className="mt-1 line-clamp-2 block text-xs leading-5 text-neutral-600">
+                    {stripMarkdown(note.content).slice(0, 100) || "No content"}
+                  </span>
+                  <span className="mt-2 block text-xs text-neutral-500">
+                    {format(new Date(note.updatedAt), "MMM d, yyyy")}
+                  </span>
+                </span>
               </div>
-              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                {stripMarkdown(note.content).slice(0, 100) || "No content"}
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-2">
-                {format(new Date(note.updatedAt), "MMM d, yyyy")}
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
       <Dialog open={!!noteToDelete} onOpenChange={(open) => !open && setNoteToDelete(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Note</DialogTitle>
+            <DialogTitle>Delete note</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this note? This action cannot be undone.
+              This note will be permanently removed from your workspace.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -1,16 +1,26 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useMemo } from "react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Flame, Clock, CalendarDays } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { CalendarDays, Clock, Flame, GitCommitHorizontal, type LucideIcon } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CommitActivity } from "@/types/github";
 
 interface PomodoroSessionData {
   id: string;
   duration: number;
-  completedAt: Date | string; // Date on server, string on client over boundary
+  completedAt: Date | string;
 }
 
 interface StatsChartsProps {
@@ -21,27 +31,29 @@ interface StatsChartsProps {
 
 function calculateStreak(activities: CommitActivity[]): number {
   let streak = 0;
-  let i = activities.length - 1;
+  let index = activities.length - 1;
 
-  if (activities[i]?.count === 0) {
-    i--;
+  if (activities[index]?.count === 0) {
+    index -= 1;
   }
 
-  for (; i >= 0; i--) {
-    if (activities[i].count > 0) {
-      streak++;
-    } else {
-      break;
+  for (; index >= 0; index -= 1) {
+    if (activities[index].count > 0) {
+      streak += 1;
+      continue;
     }
+
+    break;
   }
+
   return streak;
 }
 
 function formatTime(minutes: number) {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h > 0) return `${h} hrs ${m} min`;
-  return `${m} min`;
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  if (hours > 0) return remaining > 0 ? `${hours}h ${remaining}m` : `${hours}h`;
+  return `${minutes}m`;
 }
 
 function getLocalISODate(date: Date) {
@@ -51,141 +63,170 @@ function getLocalISODate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function getDayLabel(key: string) {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", { weekday: "short" });
+}
+
 export function StatsCharts({ commitActivity, commitStreakActivity, pomodoroSessions }: StatsChartsProps) {
   const commitData = useMemo(() => {
-    return commitActivity.map((item) => {
-      const [year, month, day] = item.date.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-      return {
-        ...item,
-        day: date.toLocaleDateString("en-US", { weekday: "short" }),
-      };
-    });
+    return commitActivity.map((item) => ({
+      ...item,
+      day: getDayLabel(item.date),
+    }));
   }, [commitActivity]);
-
-  const streak = calculateStreak(commitStreakActivity ?? commitActivity);
 
   const pomodoroData = useMemo(() => {
     const counts: Record<string, number> = {};
     const durations: Record<string, number> = {};
 
     pomodoroSessions.forEach((session) => {
-      const dateStr = getLocalISODate(new Date(session.completedAt));
-      counts[dateStr] = (counts[dateStr] ?? 0) + 1;
-      durations[dateStr] = (durations[dateStr] ?? 0) + session.duration;
+      const dateKey = getLocalISODate(new Date(session.completedAt));
+      counts[dateKey] = (counts[dateKey] ?? 0) + 1;
+      durations[dateKey] = (durations[dateKey] ?? 0) + session.duration;
     });
 
-    const result = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = getLocalISODate(d);
-      
-      const [year, month, day] = key.split("-").map(Number);
-      const localDate = new Date(year, month - 1, day);
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - index));
+      const dateKey = getLocalISODate(date);
 
-      result.push({
-        date: key,
-        day: localDate.toLocaleDateString("en-US", { weekday: "short" }),
-        count: counts[key] ?? 0,
-        duration: durations[key] ?? 0,
-      });
-    }
-    return result;
+      return {
+        date: dateKey,
+        day: getDayLabel(dateKey),
+        count: counts[dateKey] ?? 0,
+        duration: durations[dateKey] ?? 0,
+      };
+    });
   }, [pomodoroSessions]);
 
-  const sessionsThisWeek = pomodoroData.reduce((acc, curr) => acc + curr.count, 0);
-  const focusTimeThisWeek = pomodoroData.reduce((acc, curr) => acc + curr.duration, 0);
+  const streak = calculateStreak(commitStreakActivity ?? commitActivity);
+  const weeklyCommits = commitActivity.reduce((sum, item) => sum + item.count, 0);
+  const sessionsThisWeek = pomodoroData.reduce((sum, item) => sum + item.count, 0);
+  const focusTimeThisWeek = pomodoroData.reduce((sum, item) => sum + item.duration, 0);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commit Streak</CardTitle>
-            <Flame className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{streak} days</div>
-            <p className="text-xs text-muted-foreground mt-1">Current consecutive days</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sessions This Week</CardTitle>
-            <CalendarDays className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{sessionsThisWeek}</div>
-            <p className="text-xs text-muted-foreground mt-1">Pomodoro sessions completed</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Focus Time</CardTitle>
-            <Clock className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatTime(focusTimeThisWeek)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total focus time this week</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-3 md:grid-cols-3">
+        <StatCard
+          title="Commit streak"
+          value={`${streak} days`}
+          detail={`${weeklyCommits} commits this week`}
+          icon={Flame}
+        />
+        <StatCard
+          title="Sessions this week"
+          value={sessionsThisWeek.toString()}
+          detail="Pomodoro sessions completed"
+          icon={CalendarDays}
+        />
+        <StatCard
+          title="Focus time"
+          value={formatTime(focusTimeThisWeek)}
+          detail="Total focus logged"
+          icon={Clock}
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Focus Sessions (Last 7 Days)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={pomodoroData}>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="day" tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-                  <Tooltip cursor={{ fill: "var(--accent)" }} />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Sessions" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ChartPanel
+          title="Focus sessions"
+          description="Completed sessions across the last seven days."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={pomodoroData}>
+              <CartesianGrid vertical={false} stroke="rgba(115,115,115,0.18)" strokeDasharray="3 3" />
+              <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: "#737373", fontSize: 12 }} />
+              <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#737373", fontSize: 12 }} />
+              <Tooltip cursor={{ fill: "rgba(245,245,245,0.9)" }} contentStyle={tooltipStyle} />
+              <Bar dataKey="count" fill="var(--primary)" radius={[6, 6, 2, 2]} name="Sessions" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Commit Activity (Last 7 Days)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={commitData}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="day" tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-                  <Tooltip />
-                  <Area 
-                    type="monotone" 
-                    dataKey="count" 
-                    stroke="hsl(var(--primary))" 
-                    fillOpacity={1} 
-                    fill="url(#colorCount)" 
-                    name="Commits"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <ChartPanel
+          title="Commit activity"
+          description="Your shipping rhythm over the last seven days."
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={commitData}>
+              <defs>
+                <linearGradient id="commitCountGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.28} />
+                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} stroke="rgba(115,115,115,0.18)" strokeDasharray="3 3" />
+              <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: "#737373", fontSize: 12 }} />
+              <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#737373", fontSize: 12 }} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Area
+                type="monotone"
+                dataKey="count"
+                stroke="var(--primary)"
+                strokeWidth={2}
+                fill="url(#commitCountGradient)"
+                name="Commits"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartPanel>
       </div>
     </div>
+  );
+}
+
+const tooltipStyle = {
+  borderRadius: "8px",
+  border: "1px solid rgba(0,0,0,0.1)",
+  background: "rgba(255,255,255,0.96)",
+  boxShadow: "0 14px 30px -22px rgba(15,23,42,0.34)",
+};
+
+function StatCard({
+  title,
+  value,
+  detail,
+  icon: Icon,
+}: {
+  title: string;
+  value: string;
+  detail: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <div className="yev-card p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-neutral-600">{title}</p>
+        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
+          <Icon className="h-4 w-4" />
+        </span>
+      </div>
+      <p className="mt-4 text-2xl font-semibold text-neutral-950">{value}</p>
+      <p className="mt-1 text-xs text-neutral-500">{detail}</p>
+    </div>
+  );
+}
+
+function ChartPanel({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="yev-card overflow-hidden">
+      <div className="flex items-start justify-between gap-4 border-b border-neutral-200 px-5 py-4">
+        <div>
+          <h2 className="text-sm font-semibold text-neutral-950">{title}</h2>
+          <p className="mt-1 text-sm text-neutral-600">{description}</p>
+        </div>
+        <GitCommitHorizontal className="h-4 w-4 shrink-0 text-primary" />
+      </div>
+      <div className="h-[240px] px-4 py-5">{children}</div>
+    </section>
   );
 }

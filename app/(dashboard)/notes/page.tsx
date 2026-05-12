@@ -2,9 +2,13 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getServerSession } from "next-auth";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { NoteEditor } from "@/components/NoteEditor";
 import { NoteList } from "@/components/NoteList";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -17,8 +21,19 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   await connection();
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
-      <h1 className="text-3xl font-bold tracking-tight mb-6">Notes</h1>
+    <div className="mx-auto flex min-h-[calc(100vh-7rem)] max-w-[960px] flex-col space-y-6">
+      <PageHeader
+        title="Notes"
+        description="Your knowledge base and quick notes."
+        actions={
+          <Button asChild>
+            <Link href="/notes">
+              <Plus className="h-4 w-4" />
+              New note
+            </Link>
+          </Button>
+        }
+      />
       <Suspense fallback={<NotesSkeleton />}>
         <NotesContent searchParams={searchParams} />
       </Suspense>
@@ -48,11 +63,11 @@ async function NotesContent({ searchParams }: NotesPageProps) {
   const selectedNote = notes.find((note) => note.id === selectedId);
 
   return (
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 overflow-hidden">
-      <div className="md:col-span-1 flex flex-col overflow-hidden border rounded-lg bg-card text-card-foreground shadow-sm">
+    <div className="grid flex-1 gap-4 overflow-hidden lg:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="yev-card flex min-h-[360px] flex-col overflow-hidden">
         <NoteList notes={notes} selectedId={selectedId} />
       </div>
-      <div className="md:col-span-2 flex flex-col overflow-hidden border rounded-lg bg-card text-card-foreground shadow-sm">
+      <div className="yev-card flex min-h-[520px] flex-col overflow-hidden">
         <NoteEditor key={selectedNote?.id ?? "new-note"} note={selectedNote} />
       </div>
     </div>
@@ -61,9 +76,9 @@ async function NotesContent({ searchParams }: NotesPageProps) {
 
 function NotesSkeleton() {
   return (
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Skeleton className="md:col-span-1 h-full min-h-[400px]" />
-      <Skeleton className="md:col-span-2 h-full min-h-[400px]" />
+    <div className="grid flex-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <Skeleton className="h-full min-h-[360px] rounded-lg" />
+      <Skeleton className="h-full min-h-[520px] rounded-lg" />
     </div>
   );
 }

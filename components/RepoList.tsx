@@ -1,206 +1,332 @@
-'use client'
+"use client";
 
-import { useState, useMemo, useEffect } from 'react'
-import { GitHubRepo } from '@/types/github'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { useEffect, useMemo, useState } from "react";
+import { Check, CircleDot, Code2, ExternalLink, Lock, Plus, Search, Star } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Star, CircleDot, ExternalLink } from 'lucide-react'
+} from "@/components/ui/select";
+import type { GitHubRepo } from "@/types/github";
 
-// Helper for relative time
+const TRACKED_REPOS_KEY = "yevora.trackedRepos";
+
 function getRelativeTime(dateString: string) {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  
-  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
-  
-  const days = Math.floor(diffInSeconds / 86400)
-  if (days > 0) return rtf.format(-days, 'day')
-  
-  const hours = Math.floor(diffInSeconds / 3600)
-  if (hours > 0) return rtf.format(-hours, 'hour')
-  
-  const minutes = Math.floor(diffInSeconds / 60)
-  if (minutes > 0) return rtf.format(-minutes, 'minute')
-  
-  return rtf.format(-diffInSeconds, 'second')
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  const days = Math.floor(diffInSeconds / 86400);
+  if (days > 0) return formatter.format(-days, "day");
+
+  const hours = Math.floor(diffInSeconds / 3600);
+  if (hours > 0) return formatter.format(-hours, "hour");
+
+  const minutes = Math.floor(diffInSeconds / 60);
+  if (minutes > 0) return formatter.format(-minutes, "minute");
+
+  return formatter.format(-diffInSeconds, "second");
 }
 
-// Helper for language badge colors
-function getLanguageColor(lang: string) {
-  const normalized = lang.toLowerCase()
-  switch (normalized) {
-    case 'typescript': return 'bg-blue-500 hover:bg-blue-600 text-white'
-    case 'javascript': return 'bg-yellow-400 hover:bg-yellow-500 text-black'
-    case 'python': return 'bg-green-500 hover:bg-green-600 text-white'
-    case 'go': return 'bg-cyan-500 hover:bg-cyan-600 text-white'
-    case 'rust': return 'bg-orange-500 hover:bg-orange-600 text-white'
-    default: return 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-  }
+function getLanguageTone(language: string) {
+  const normalized = language.toLowerCase();
+
+  if (normalized === "typescript") return "bg-sky-500";
+  if (normalized === "javascript") return "bg-amber-400";
+  if (normalized === "python") return "bg-emerald-500";
+  if (normalized === "go") return "bg-cyan-500";
+  if (normalized === "rust") return "bg-orange-500";
+
+  return "bg-neutral-400";
 }
 
-// Custom hook for debouncing
 function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
+    const handler = window.setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
 
-    return () => clearTimeout(handler)
-  }, [value, delay])
+    return () => window.clearTimeout(handler);
+  }, [value, delay]);
 
-  return debouncedValue
+  return debouncedValue;
 }
 
 export function RepoList({ repos }: { repos: GitHubRepo[] }) {
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useDebounce(search, 300)
-  
-  const [language, setLanguage] = useState('all')
-  const [sortBy, setSortBy] = useState('updated')
+  const [search, setSearch] = useState("");
+  const [language, setLanguage] = useState("all");
+  const [sortBy, setSortBy] = useState("updated");
+  const [showAll, setShowAll] = useState(false);
+  const [trackedRepoIds, setTrackedRepoIds] = useState<number[] | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    try {
+      const storedValue = window.localStorage.getItem(TRACKED_REPOS_KEY);
+      const storedIds = storedValue ? (JSON.parse(storedValue) as unknown) : null;
+
+      if (Array.isArray(storedIds) && storedIds.every((item) => typeof item === "number")) {
+        return storedIds;
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
+  });
+  const debouncedSearch = useDebounce(search, 250);
+
+  useEffect(() => {
+    if (!trackedRepoIds) return;
+
+    window.localStorage.setItem(TRACKED_REPOS_KEY, JSON.stringify(trackedRepoIds));
+  }, [trackedRepoIds]);
 
   const uniqueLanguages = useMemo(() => {
-    const langs = new Set<string>()
-    repos.forEach(r => {
-      if (r.language) langs.add(r.language)
-    })
-    return Array.from(langs).sort()
-  }, [repos])
+    const languages = new Set<string>();
+    repos.forEach((repo) => {
+      if (repo.language) languages.add(repo.language);
+    });
+    return Array.from(languages).sort();
+  }, [repos]);
 
   const filteredAndSortedRepos = useMemo(() => {
-    let result = [...repos]
+    const lowerSearch = debouncedSearch.toLowerCase();
+    const result = repos.filter((repo) => {
+      const matchesSearch =
+        !lowerSearch ||
+        repo.name.toLowerCase().includes(lowerSearch) ||
+        repo.full_name.toLowerCase().includes(lowerSearch) ||
+        (repo.description?.toLowerCase().includes(lowerSearch) ?? false);
+      const matchesLanguage = language === "all" || repo.language === language;
 
-    // Filter by search
-    if (debouncedSearch) {
-      const lowerSearch = debouncedSearch.toLowerCase()
-      result = result.filter(r => 
-        r.name.toLowerCase().includes(lowerSearch) || 
-        (r.description && r.description.toLowerCase().includes(lowerSearch))
-      )
-    }
+      return matchesSearch && matchesLanguage;
+    });
 
-    // Filter by language
-    if (language !== 'all') {
-      result = result.filter(r => r.language === language)
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      if (sortBy === 'updated') {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    result.sort((left, right) => {
+      if (sortBy === "stars") {
+        return right.stargazers_count - left.stargazers_count;
       }
-      if (sortBy === 'stars') {
-        return b.stargazers_count - a.stargazers_count
+      if (sortBy === "name") {
+        return left.name.localeCompare(right.name);
       }
-      if (sortBy === 'name') {
-        return a.name.localeCompare(b.name)
-      }
-      return 0
-    })
+      return new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime();
+    });
 
-    return result
-  }, [repos, debouncedSearch, language, sortBy])
+    return result;
+  }, [repos, debouncedSearch, language, sortBy]);
+
+  const effectiveTrackedRepoIds = useMemo(
+    () => trackedRepoIds ?? repos.slice(0, 6).map((repo) => repo.id),
+    [repos, trackedRepoIds]
+  );
+  const trackedRepoIdSet = useMemo(() => new Set(effectiveTrackedRepoIds), [effectiveTrackedRepoIds]);
+  const displayedRepos = showAll
+    ? filteredAndSortedRepos
+    : filteredAndSortedRepos.filter((repo) => trackedRepoIdSet.has(repo.id));
+
+  const privateRepos = repos.filter((repo) => repo.private).length;
+  const activeRepos = repos.filter((repo) => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return new Date(repo.updated_at) >= thirtyDaysAgo;
+  }).length;
+
+  const toggleTrackedRepo = (repoId: number) => {
+    setTrackedRepoIds((currentIds) => {
+      const ids = currentIds ?? effectiveTrackedRepoIds;
+
+      if (ids.includes(repoId)) {
+        return ids.filter((id) => id !== repoId);
+      }
+
+      return [...ids, repoId];
+    });
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Input 
-          placeholder="Search repositories..." 
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1"
-        />
-        <div className="flex gap-4 sm:w-auto w-full">
+    <div className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <RepoStat label="Total repos" value={repos.length.toString()} />
+        <RepoStat label="Active in 30 days" value={activeRepos.toString()} />
+        <RepoStat label="Selected repos" value={effectiveTrackedRepoIds.length.toString()} />
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+          <Input
+            placeholder="Search repositories..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="h-9 rounded-md border-neutral-200 bg-white pl-9"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:flex">
           <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="h-9 rounded-md border-neutral-200 bg-white sm:w-[160px]">
               <SelectValue placeholder="Language" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All languages</SelectItem>
-              {uniqueLanguages.map(lang => (
-                <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+              {uniqueLanguages.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {item}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="h-9 rounded-md border-neutral-200 bg-white sm:w-[160px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="updated">Recently updated</SelectItem>
               <SelectItem value="stars">Most stars</SelectItem>
-              <SelectItem value="name">Name A–Z</SelectItem>
+              <SelectItem value="name">Name A-Z</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredAndSortedRepos.map((repo) => (
-          <Card key={repo.id} className="flex flex-col">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start gap-4">
-                <CardTitle className="text-base font-semibold leading-tight break-all">
-                  <a 
-                    href={repo.html_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:underline hover:text-primary flex items-center gap-1.5"
-                  >
-                    {repo.name}
-                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                  </a>
-                </CardTitle>
-                <div className="flex items-center gap-2 shrink-0">
-                  {repo.private && (
-                    <Badge variant="outline" className="font-normal text-xs">Private</Badge>
-                  )}
-                  {repo.language && (
-                    <Badge className={`font-normal text-xs border-transparent ${getLanguageColor(repo.language)}`}>
-                      {repo.language}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <CardDescription className="line-clamp-2 text-sm mt-2 min-h-[40px]">
-                {repo.description || "No description provided."}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="mt-auto pt-0 pb-4">
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5" />
-                  <span>{repo.stargazers_count}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <CircleDot className="h-3.5 w-3.5" />
-                  <span>{repo.open_issues_count}</span>
-                </div>
-                <div className="ml-auto" suppressHydrationWarning>
-                  Updated {getRelativeTime(repo.updated_at)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex items-center justify-between">
+        <div className="inline-flex rounded-md border border-neutral-200 bg-white p-0.5">
+          <button
+            type="button"
+            onClick={() => setShowAll(false)}
+            className={`h-7 rounded px-3 text-xs font-medium transition-colors ${
+              !showAll ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-100"
+            }`}
+          >
+            Selected
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowAll(true)}
+            className={`h-7 rounded px-3 text-xs font-medium transition-colors ${
+              showAll ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-100"
+            }`}
+          >
+            All
+          </button>
+        </div>
+        <p className="text-xs text-neutral-500">
+          {displayedRepos.length} shown, {privateRepos} private
+        </p>
       </div>
-      
-      {filteredAndSortedRepos.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          No repositories found matching your criteria.
+
+      {displayedRepos.length > 0 ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {displayedRepos.map((repo) => {
+            const isTracked = trackedRepoIdSet.has(repo.id);
+
+            return (
+            <div
+              key={repo.id}
+              className="yev-card yev-card-hover flex min-h-32 flex-col justify-between p-4"
+            >
+              <span>
+                <span className="flex items-start justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="flex items-center gap-2">
+                      <a
+                        href={repo.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="truncate text-sm font-semibold text-neutral-950 hover:text-primary"
+                      >
+                        {repo.name}
+                      </a>
+                      {repo.private ? <Lock className="h-3.5 w-3.5 shrink-0 text-neutral-400" /> : null}
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-neutral-500">{repo.full_name}</span>
+                  </span>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleTrackedRepo(repo.id)}
+                      className={`flex h-7 w-7 items-center justify-center rounded-md border transition-colors ${
+                        isTracked
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-neutral-200 bg-white text-neutral-500 hover:border-primary/40 hover:text-primary"
+                      }`}
+                      title={isTracked ? "Remove from selected" : "Add to selected"}
+                    >
+                      {isTracked ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    </button>
+                    <a
+                      href={repo.html_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-950"
+                      title="Open on GitHub"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </span>
+
+                <span className="mt-3 line-clamp-2 block min-h-10 text-sm leading-5 text-neutral-600">
+                  {repo.description || "No description provided."}
+                </span>
+              </span>
+
+              <span className="mt-4 flex flex-wrap items-center gap-3 text-xs text-neutral-500">
+                {repo.language ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className={`h-2 w-2 rounded-full ${getLanguageTone(repo.language)}`} />
+                    {repo.language}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Code2 className="h-3.5 w-3.5" />
+                    Mixed
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1">
+                  <Star className="h-3.5 w-3.5" />
+                  {repo.stargazers_count}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <CircleDot className="h-3.5 w-3.5" />
+                  {repo.open_issues_count}
+                </span>
+                <span className="ml-auto" suppressHydrationWarning>
+                  {getRelativeTime(repo.updated_at)}
+                </span>
+              </span>
+            </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="yev-card px-5 py-12 text-center">
+          <p className="text-sm font-medium text-neutral-950">
+            {showAll ? "No repositories found" : "No selected repositories"}
+          </p>
+          <p className="mt-1 text-sm text-neutral-500">
+            {showAll ? "Try a different search or language filter." : "Switch to All and add the repositories you want here."}
+          </p>
         </div>
       )}
     </div>
-  )
+  );
+}
+
+function RepoStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="yev-card p-4">
+      <p className="text-xs text-neutral-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-neutral-950">{value}</p>
+    </div>
+  );
 }
