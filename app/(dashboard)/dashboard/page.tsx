@@ -114,6 +114,11 @@ async function DashboardContent() {
   const sessionsThisWeek = pomodoroSessions.filter(
     (sessionItem) => new Date(sessionItem.completedAt) >= sevenDaysAgo
   ).length;
+  const outputLogsThisWeek = pomodoroSessions.filter(
+    (sessionItem) =>
+      new Date(sessionItem.completedAt) >= sevenDaysAgo &&
+      Boolean(sessionItem.outputSummary || sessionItem.repositoryName || sessionItem.commitCount > 0)
+  ).length;
   const topLanguage = getTopLanguage(repos);
   const topRepos = [...repos]
     .sort((left, right) => new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime())
@@ -159,7 +164,7 @@ async function DashboardContent() {
       <ActivityOverview activity={commitActivity} totalCommits={weeklyCommits} />
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="yev-card flex h-[300px] flex-col overflow-hidden">
+        <div className="yev-card flex h-[340px] flex-col overflow-hidden">
           <PanelHeader
             title="Repository spotlight"
             meta={`${totalStars} stars`}
@@ -202,7 +207,7 @@ async function DashboardContent() {
           </div>
         </div>
 
-        <div className="yev-card flex h-[300px] flex-col overflow-hidden">
+        <div className="yev-card flex h-[340px] flex-col overflow-hidden">
           <PanelHeader title="Open PR pipeline" meta={`${openPRs.length} open`} href="/repos" />
           <div className="min-h-0 flex-1 divide-y divide-neutral-200 overflow-hidden">
             {latestPRs.length > 0 ? (
@@ -233,7 +238,7 @@ async function DashboardContent() {
           </div>
         </div>
 
-        <div className="yev-card flex h-[300px] flex-col overflow-hidden">
+        <div className="yev-card flex h-[340px] flex-col overflow-hidden">
           <PanelHeader title="Latest notes" meta={`${noteCount} notes`} href="/notes" />
           <div className="min-h-0 flex-1 divide-y divide-neutral-200 overflow-hidden">
             {recentNotes.length > 0 ? (
@@ -261,7 +266,7 @@ async function DashboardContent() {
           </div>
         </div>
 
-        <div className="yev-card flex h-[300px] flex-col p-5">
+        <div className="yev-card flex h-[340px] flex-col p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold text-neutral-950">At a glance</p>
@@ -273,6 +278,7 @@ async function DashboardContent() {
             <MiniMetric label="Top language" value={topLanguage ?? "Mixed"} />
             <MiniMetric label="Commit streak" value={`${commitStreak} days`} />
             <MiniMetric label="Focus sessions" value={sessionsThisWeek.toString()} />
+            <MiniMetric label="Output logs" value={outputLogsThisWeek.toString()} />
             <MiniMetric label="Open PRs" value={openPRs.length.toString()} />
           </div>
         </div>
@@ -354,7 +360,7 @@ function ActivityOverview({
               <div key={item.date} className="group relative flex min-w-0 flex-1 flex-col items-center gap-2">
                 <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-10 w-max -translate-x-1/2 rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs text-neutral-700 opacity-0 shadow-[0_14px_30px_-20px_rgba(15,23,42,0.35)] transition-opacity group-hover:opacity-100">
                   <span className="font-semibold text-neutral-950">{formatDay(item.date)}</span>
-                  <span className="mx-1 text-neutral-400">·</span>
+                  <span className="mx-1 text-neutral-400">-</span>
                   {item.count} commits
                 </div>
                 <div

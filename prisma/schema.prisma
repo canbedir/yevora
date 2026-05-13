@@ -58,10 +58,14 @@ model Note {
 }
 
 model PomodoroSession {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  duration    Int
-  label       String?
-  completedAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  duration       Int
+  label          String?
+  repositoryName String?
+  repositoryUrl  String?
+  commitCount    Int      @default(0)
+  outputSummary  String?  @db.Text
+  completedAt    DateTime @default(now())
 }

@@ -13,13 +13,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CalendarDays, Clock, Flame, GitCommitHorizontal, type LucideIcon } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock, Flame, GitCommitHorizontal, type LucideIcon } from "lucide-react";
 
 import type { CommitActivity } from "@/types/github";
 
 interface PomodoroSessionData {
   id: string;
   duration: number;
+  repositoryName?: string | null;
+  commitCount?: number | null;
+  outputSummary?: string | null;
   completedAt: Date | string;
 }
 
@@ -104,10 +107,17 @@ export function StatsCharts({ commitActivity, commitStreakActivity, pomodoroSess
   const weeklyCommits = commitActivity.reduce((sum, item) => sum + item.count, 0);
   const sessionsThisWeek = pomodoroData.reduce((sum, item) => sum + item.count, 0);
   const focusTimeThisWeek = pomodoroData.reduce((sum, item) => sum + item.duration, 0);
+  const outputLogsThisWeek = pomodoroSessions.filter((session) => {
+    const dateKey = getLocalISODate(new Date(session.completedAt));
+    return (
+      pomodoroData.some((item) => item.date === dateKey) &&
+      Boolean(session.outputSummary || session.repositoryName || (session.commitCount ?? 0) > 0)
+    );
+  }).length;
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Commit streak"
           value={`${streak} days`}
@@ -125,6 +135,12 @@ export function StatsCharts({ commitActivity, commitStreakActivity, pomodoroSess
           value={formatTime(focusTimeThisWeek)}
           detail="Total focus logged"
           icon={Clock}
+        />
+        <StatCard
+          title="Output logs"
+          value={outputLogsThisWeek.toString()}
+          detail="Sessions with recorded output"
+          icon={CheckCircle2}
         />
       </div>
 
