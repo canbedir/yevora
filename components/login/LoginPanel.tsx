@@ -118,7 +118,7 @@ export function LoginPanel() {
           disabled={isPending}
           onClick={() =>
             startTransition(() => {
-              void signIn("github", { callbackUrl: "/dashboard" });
+              void signIn("github", { callbackUrl: "/today" });
             })
           }
         >

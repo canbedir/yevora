@@ -45,8 +45,8 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ isAuthenticated }: HeroSectionProps) {
-  const ctaHref = isAuthenticated ? "/dashboard" : "/login";
-  const ctaLabel = isAuthenticated ? "Open Dashboard" : "Start with GitHub";
+  const ctaHref = isAuthenticated ? "/today" : "/login";
+  const ctaLabel = isAuthenticated ? "Open Today" : "Start with GitHub";
 
   return (
     <section className="relative overflow-hidden pb-28 pt-16 md:pb-36 md:pt-20">

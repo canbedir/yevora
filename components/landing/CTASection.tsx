@@ -14,8 +14,8 @@ const ctaSignals = [
 ];
 
 export function CTASection({ isAuthenticated }: CTASectionProps) {
-  const href = isAuthenticated ? "/dashboard" : "/login";
-  const label = isAuthenticated ? "Go to dashboard" : "Connect GitHub";
+  const href = isAuthenticated ? "/today" : "/login";
+  const label = isAuthenticated ? "Open today" : "Connect GitHub";
 
   return (
     <section id="workflow" className="relative overflow-hidden border-t border-border/70 py-24">

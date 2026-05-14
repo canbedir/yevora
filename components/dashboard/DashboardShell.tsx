@@ -31,6 +31,7 @@ import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
 import { useTodayQueue } from "@/components/dashboard/useTodayQueue";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 interface DashboardShellProps {
   children: ReactNode;
@@ -109,31 +110,30 @@ function SidebarNav({
 
 function UserMenu({
   name,
-  email,
   image,
   compact = false,
 }: {
   name?: string | null;
-  email?: string | null;
   image?: string | null;
   compact?: boolean;
 }) {
   const initials = getInitials(name);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         {compact ? (
-          <button className="flex items-center gap-2 rounded-md px-1.5 py-1 text-left outline-none transition-colors hover:bg-neutral-100">
+          <button className="inline-flex h-9 items-center gap-2 rounded-full border border-neutral-200 bg-white px-1.5 pr-2 text-left shadow-[0_8px_24px_-18px_rgba(15,23,42,0.28)] outline-none transition-colors hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-primary/20">
             <Avatar className="h-7 w-7 bg-neutral-950 text-white">
               <AvatarImage src={image ?? undefined} alt={name ?? "User"} />
               <AvatarFallback className="bg-neutral-950 text-[11px] font-semibold text-white">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <span className="hidden text-[13px] font-medium text-neutral-950 sm:inline">
+            <span className="hidden max-w-[88px] truncate text-[13px] font-medium text-neutral-950 sm:inline">
               {name?.split(" ")[0] ?? "User"}
             </span>
+            <ChevronDown className="hidden h-3.5 w-3.5 text-neutral-400 sm:inline" />
           </button>
         ) : (
           <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left outline-none transition-colors hover:bg-neutral-100">
@@ -143,7 +143,6 @@ function UserMenu({
             </Avatar>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px] font-semibold text-neutral-950">{name ?? "User"}</span>
-              <span className="block truncate text-xs text-neutral-500">{email ?? ""}</span>
             </span>
             <Settings className="h-4 w-4 shrink-0 text-neutral-500" />
           </button>
@@ -152,7 +151,6 @@ function UserMenu({
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-2 py-1.5">
           <p className="text-sm font-medium">{name ?? "User"}</p>
-          <p className="truncate text-xs text-muted-foreground">{email ?? ""}</p>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -169,12 +167,10 @@ function UserMenu({
 
 function SidebarContent({
   pathname,
-  session,
   todayCount,
   onNavigate,
 }: {
   pathname: string;
-  session: { user?: { name?: string | null; email?: string | null; image?: string | null } } | null;
   todayCount: number;
   onNavigate?: () => void;
 }) {
@@ -192,14 +188,6 @@ function SidebarContent({
       <div className="flex-1 py-4">
         <SidebarNav pathname={pathname} todayCount={todayCount} onNavigate={onNavigate} />
       </div>
-
-      <div className="border-t border-neutral-200 p-2">
-        <UserMenu
-          name={session?.user?.name}
-          email={session?.user?.email}
-          image={session?.user?.image}
-        />
-      </div>
     </div>
   );
 }
@@ -212,7 +200,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   return (
     <div className="yev-shell min-h-screen bg-neutral-50 text-neutral-950">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[184px] border-r border-neutral-200 bg-neutral-50 lg:block">
-        <SidebarContent pathname={pathname} session={session} todayCount={count} />
+        <SidebarContent pathname={pathname} todayCount={count} />
       </aside>
 
       <div className="min-h-screen lg:pl-[184px]">
@@ -227,7 +215,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[184px] border-r border-neutral-200 p-0">
-                  <SidebarContent pathname={pathname} session={session} todayCount={count} />
+                  <SidebarContent pathname={pathname} todayCount={count} />
                 </SheetContent>
               </Sheet>
             </div>
@@ -238,7 +226,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
             <NotificationCenter items={items} isLoading={isLoading} hasError={hasError} />
             <UserMenu
               name={session?.user?.name}
-              email={session?.user?.email}
               image={session?.user?.image}
               compact
             />

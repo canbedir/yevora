@@ -2,19 +2,10 @@
 
 import Link from "next/link";
 import type { Session } from "next-auth";
-import { signOut } from "next-auth/react";
-import { ArrowUpRight, Code2, LayoutDashboard, LogOut } from "lucide-react";
+import { ArrowUpRight, Code2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const links = [
   { href: "#features", label: "Features" },
@@ -78,72 +69,24 @@ export function NavBar({ user }: NavBarProps) {
 
         <div className="flex items-center gap-2">
           {user ? (
-            <>
-              <Button asChild variant="ghost" className="hidden rounded-full px-4 sm:inline-flex">
-                <Link href="/dashboard">
-                  Dashboard
-                  <LayoutDashboard className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="landing-outline-button h-auto rounded-full px-2 py-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar size="lg" className="border border-border/70">
-                        <AvatarImage src={user.image ?? undefined} alt={user.name ?? "Yevora user"} />
-                        <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="hidden min-w-0 text-left sm:block">
-                        <p className="truncate text-sm font-medium">{user.name ?? "Developer"}</p>
-                        <p className="truncate text-xs text-muted-foreground">{user.email ?? "GitHub connected"}</p>
-                      </div>
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64">
-                  <DropdownMenuLabel className="space-y-1">
-                    <p>{user.name ?? "Developer"}</p>
-                    <p className="font-normal text-muted-foreground">{user.email ?? "GitHub connected"}</p>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Open dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+            <Link href="/today" className="landing-outline-button inline-flex h-auto rounded-full px-2 py-2">
+              <div className="flex items-center gap-3">
+                <Avatar size="lg" className="border border-border/70">
+                  <AvatarImage src={user.image ?? undefined} alt={user.name ?? "Yevora user"} />
+                  <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                </Avatar>
+                <div className="hidden min-w-0 text-left sm:block pr-2">
+                  <p className="truncate text-sm font-medium">{user.name ?? "Developer"}</p>
+                </div>
+              </div>
+            </Link>
           ) : (
-            <>
-              <Button
-                asChild
-                variant="outline"
-                className="landing-outline-button hidden rounded-full px-4 sm:inline-flex"
-              >
-                <Link href="/login">Sign in</Link>
-              </Button>
-              <Button
-                asChild
-                className="landing-button rounded-full px-5"
-              >
-                <Link href="/login">
-                  Launch your board
-                  <ArrowUpRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </>
+            <Button asChild className="landing-button rounded-full px-5">
+              <Link href="/login">
+                Sign in
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           )}
         </div>
       </div>
