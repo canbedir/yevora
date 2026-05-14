@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { Note } from "@prisma/client";
@@ -80,10 +81,24 @@ export function NoteList({ notes, selectedId }: NoteListProps) {
 
       <div className="flex-1 overflow-y-auto">
         {notes.length === 0 ? (
-          <div className="px-4 py-10 text-center">
-            <p className="text-sm font-medium text-neutral-950">No notes found</p>
-            <p className="mt-1 text-sm text-neutral-500">Create a note or change your search.</p>
-          </div>
+          <EmptyState
+            title={search ? "No notes found" : "Your first note starts here"}
+            description={
+              search
+                ? "Try a different search, or clear it to bring your full note list back."
+                : "The editor is ready on the right whenever you want to capture an idea or a session summary."
+            }
+            icon={search ? Search : FileText}
+            compact
+            action={
+              search ? (
+                <Button variant="outline" size="sm" onClick={() => setSearch("")}>
+                  Clear search
+                </Button>
+              ) : undefined
+            }
+            className="min-h-full"
+          />
         ) : (
           <div className="divide-y divide-neutral-200">
             {notes.map((note) => (

@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import {
@@ -204,7 +206,17 @@ async function DashboardContent() {
                 </a>
               ))
             ) : (
-              <EmptyState title="No repositories yet" description="Your GitHub repositories will appear here." />
+              <EmptyState
+                title="No repositories yet"
+                description="Open repositories to choose the repos you want Yevora to keep close."
+                icon={FolderGit2}
+                compact
+                action={
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/repos">Open repos</Link>
+                  </Button>
+                }
+              />
             )}
           </div>
         </div>
@@ -235,7 +247,12 @@ async function DashboardContent() {
                 </a>
               ))
             ) : (
-              <EmptyState title="No open PRs" description="Your review queue is clear right now." />
+              <EmptyState
+                title="PR queue clear"
+                description="No authored pull requests need attention right now."
+                icon={GitCommitHorizontal}
+                compact
+              />
             )}
           </div>
         </div>
@@ -263,7 +280,17 @@ async function DashboardContent() {
                 </Link>
               ))
             ) : (
-              <EmptyState title="No notes yet" description="Create your first note from the notes page." />
+              <EmptyState
+                title="No notes yet"
+                description="Start the first note and this space will turn into your recent working context."
+                icon={FileText}
+                compact
+                action={
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/notes">Create note</Link>
+                  </Button>
+                }
+              />
             )}
           </div>
         </div>
@@ -425,15 +452,6 @@ function MiniMetric({ label, value, isActive = false }: { label: string; value: 
         {isActive ? <span className="h-1.5 w-1.5 rounded-full bg-primary yev-live-signal" /> : null}
         {value}
       </span>
-    </div>
-  );
-}
-
-function EmptyState({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="px-5 py-8 text-center">
-      <p className="text-sm font-medium text-neutral-950">{title}</p>
-      <p className="mt-1 text-sm text-neutral-500">{description}</p>
     </div>
   );
 }

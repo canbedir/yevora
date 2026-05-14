@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { authOptions } from "@/lib/auth";
 import { getTodaySummary, type TodayQueueItem, type TodayQueueTone } from "@/lib/today";
 import { cn } from "@/lib/utils";
@@ -194,7 +196,15 @@ export default async function TodayPage() {
               </div>
             ))
           ) : (
-            <PanelEmpty title="No focus yet" description="Your completed sessions will appear here." />
+            <PanelEmpty
+              title="No focus yet"
+              description="Your completed sessions will appear here once you log the first focused block."
+              action={
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/focus">Open focus</Link>
+                </Button>
+              }
+            />
           )}
         </Panel>
 
@@ -297,11 +307,16 @@ function QueueCard({ item }: { item: TodayQueueItem }) {
 
 function EmptyQueue() {
   return (
-    <div className="px-5 py-12 text-center">
-      <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-600" />
-      <p className="mt-3 text-sm font-semibold text-neutral-950">Nothing urgent</p>
-      <p className="mt-1 text-sm text-neutral-500">Your focus, notes, repos, and PRs look tidy right now.</p>
-    </div>
+    <EmptyState
+      title="Nothing urgent"
+      description="Your focus, notes, repos, and PRs look tidy right now. A fresh focus block is a good next move."
+      icon={CheckCircle2}
+      action={
+        <Button asChild variant="outline" size="sm">
+          <Link href="/focus">Start focus</Link>
+        </Button>
+      }
+    />
   );
 }
 
@@ -338,12 +353,17 @@ function Panel({
   );
 }
 
-function PanelEmpty({ title, description }: { title: string; description: string }) {
+function PanelEmpty({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description: string;
+  action?: ReactNode;
+}) {
   return (
-    <div className="px-5 py-10 text-center">
-      <p className="text-sm font-semibold text-neutral-950">{title}</p>
-      <p className="mt-1 text-sm text-neutral-500">{description}</p>
-    </div>
+    <EmptyState title={title} description={description} action={action} compact />
   );
 }
 

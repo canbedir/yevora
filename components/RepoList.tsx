@@ -8,6 +8,7 @@ import {
   CircleDot,
   Code2,
   ExternalLink,
+  FolderGit2,
   LoaderCircle,
   Lock,
   Plus,
@@ -16,6 +17,8 @@ import {
 } from "lucide-react";
 
 import { saveTrackedRepos } from "@/app/actions/tracked-repos";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -160,6 +163,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
   const displayedRepos = showAll
     ? filteredAndSortedRepos
     : filteredAndSortedRepos.filter((repo) => trackedRepoIdSet.has(repo.id));
+  const hasFilters = search.trim().length > 0 || language !== "all";
 
   const privateRepos = repos.filter((repo) => repo.private).length;
   const activeRepos = repos.filter((repo) => {
@@ -177,6 +181,63 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
       return [...currentIds, repoId];
     });
   };
+
+  const resetFilters = () => {
+    setSearch("");
+    setLanguage("all");
+    setSortBy("updated");
+  };
+
+  const emptyState = (() => {
+    if (repos.length === 0) {
+      return {
+        title: "No repositories yet",
+        description: "Your GitHub repositories will show up here once your account returns them.",
+        icon: FolderGit2,
+      };
+    }
+
+    if (showAll) {
+      return {
+        title: "No repositories found",
+        description: "Try a different search or clear the language filter to widen the list.",
+        icon: Search,
+        action: hasFilters ? (
+          <Button variant="outline" size="sm" onClick={resetFilters}>
+            Clear filters
+          </Button>
+        ) : undefined,
+      };
+    }
+
+    if (trackedRepoIds.length === 0) {
+      return {
+        title: "No selected repositories",
+        description: "Pick a few repos to keep your daily workspace focused and easier to scan.",
+        icon: Plus,
+        action: (
+          <Button variant="outline" size="sm" onClick={() => setShowAll(true)}>
+            Browse all repos
+          </Button>
+        ),
+      };
+    }
+
+    return {
+      title: "No selected repositories match",
+      description: "Your saved repos are there, but the current search or language filter is hiding them.",
+      icon: Search,
+      action: hasFilters ? (
+        <Button variant="outline" size="sm" onClick={resetFilters}>
+          Clear filters
+        </Button>
+      ) : (
+        <Button variant="outline" size="sm" onClick={() => setShowAll(true)}>
+          Browse all repos
+        </Button>
+      ),
+    };
+  })();
 
   return (
     <div className="space-y-5">
@@ -341,13 +402,13 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
           })}
         </div>
       ) : (
-        <div className="yev-card px-5 py-12 text-center">
-          <p className="text-sm font-medium text-neutral-950">
-            {showAll ? "No repositories found" : "No selected repositories"}
-          </p>
-          <p className="mt-1 text-sm text-neutral-500">
-            {showAll ? "Try a different search or language filter." : "Switch to All and add the repositories you want here."}
-          </p>
+        <div className="yev-card">
+          <EmptyState
+            title={emptyState.title}
+            description={emptyState.description}
+            icon={emptyState.icon}
+            action={emptyState.action}
+          />
         </div>
       )}
     </div>
