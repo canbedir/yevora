@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Search,
   Settings,
   Timer,
   Workflow,
@@ -27,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CommandPalette } from "@/components/dashboard/CommandPalette";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -184,20 +184,6 @@ function SidebarContent({
   );
 }
 
-function TopSearch() {
-  return (
-    <form action="/notes" className="relative hidden w-full max-w-[260px] sm:block">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
-      <input
-        name="q"
-        type="search"
-        placeholder="Search..."
-        className="h-8 w-full rounded-md border border-transparent bg-neutral-100 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-neutral-500 focus:border-neutral-300 focus:bg-white"
-      />
-    </form>
-  );
-}
-
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -224,7 +210,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 </SheetContent>
               </Sheet>
             </div>
-            <TopSearch />
+            <CommandPalette />
           </div>
 
           <div className="flex items-center gap-2">
