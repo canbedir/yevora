@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 const FOCUS_PRESETS = [15, 25, 45, 60];
 const STORAGE_KEY = "yevora.focusSettings";
 const DEFAULT_FOCUS_SETTINGS = { focusMinutes: 25, breakMinutes: 5 };
+type TimerMode = "focus" | "break";
 
 interface StoredFocusSettings {
   focusMinutes: number;
@@ -119,6 +120,7 @@ export function FocusConsole() {
   const [breakMinutes, setBreakMinutes] = useState(DEFAULT_FOCUS_SETTINGS.breakMinutes);
   const [timeLeft, setTimeLeft] = useState(DEFAULT_FOCUS_SETTINGS.focusMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [timerMode, setTimerMode] = useState<TimerMode>("focus");
   const [taskLabel, setTaskLabel] = useState("");
   const [repositoryName, setRepositoryName] = useState("");
   const [repositoryUrl, setRepositoryUrl] = useState("");
@@ -127,11 +129,13 @@ export function FocusConsole() {
   const [sessions, setSessions] = useState<PomodoroSessionData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isAwaitingWrapUp, setIsAwaitingWrapUp] = useState(false);
+  const [hasCompletedBreak, setHasCompletedBreak] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasLoadedStoredSettings, setHasLoadedStoredSettings] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const totalSeconds = focusMinutes * 60;
+  const activeMinutes = timerMode === "focus" ? focusMinutes : breakMinutes;
+  const totalSeconds = activeMinutes * 60;
   const progress = totalSeconds > 0 ? ((totalSeconds - timeLeft) / totalSeconds) * 100 : 0;
   const todayKey = getLocalDateKey(new Date());
   const sevenDaysAgo = new Date();
@@ -194,6 +198,23 @@ export function FocusConsole() {
     setOutputSummary("");
   };
 
+  const startBreak = () => {
+    setTimerMode("break");
+    setTimeLeft(breakMinutes * 60);
+    setHasCompletedBreak(false);
+    setIsRunning(true);
+  };
+
+  const prepareNextFocus = ({ start = false }: { start?: boolean } = {}) => {
+    setTimerMode("focus");
+    setTimeLeft(focusMinutes * 60);
+    setHasCompletedBreak(false);
+    setIsAwaitingWrapUp(false);
+    setSaveError(null);
+    setIsRunning(start);
+    clearOutputFields();
+  };
+
   const completeSession = async ({ includeOutput = true }: { includeOutput?: boolean } = {}) => {
     setIsSaving(true);
     setSaveError(null);
@@ -218,7 +239,7 @@ export function FocusConsole() {
         setIsAwaitingWrapUp(false);
         setTaskLabel("");
         clearOutputFields();
-        setTimeLeft(totalSeconds);
+        startBreak();
       } else {
         setSaveError("Session could not be saved. Please try again.");
       }
@@ -240,7 +261,11 @@ export function FocusConsole() {
         window.clearInterval(interval);
         setTimeLeft(0);
         setIsRunning(false);
-        setIsAwaitingWrapUp(true);
+        if (timerMode === "focus") {
+          setIsAwaitingWrapUp(true);
+        } else {
+          setHasCompletedBreak(true);
+        }
         setSaveError(null);
         playBeep(audioContextRef);
         return;
@@ -250,24 +275,68 @@ export function FocusConsole() {
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [isRunning, timeLeft]);
+  }, [isRunning, timeLeft, timerMode]);
 
   const changeFocusMinutes = (minutes: number) => {
     const nextMinutes = normalizeMinutes(minutes, focusMinutes);
     setFocusMinutes(nextMinutes);
-    setTimeLeft(nextMinutes * 60);
+    if (timerMode === "focus") {
+      setTimeLeft(nextMinutes * 60);
+    }
     setIsRunning(false);
     setIsAwaitingWrapUp(false);
+    setHasCompletedBreak(false);
     setSaveError(null);
     clearOutputFields();
+  };
+
+  const changeBreakMinutes = (minutes: number) => {
+    const nextMinutes = normalizeMinutes(minutes, breakMinutes);
+    setBreakMinutes(nextMinutes);
+    if (timerMode === "break") {
+      setTimeLeft(nextMinutes * 60);
+      setHasCompletedBreak(false);
+    }
+    setIsRunning(false);
+    setSaveError(null);
   };
 
   const resetTimer = () => {
     setIsRunning(false);
     setTimeLeft(totalSeconds);
     setIsAwaitingWrapUp(false);
+    setHasCompletedBreak(false);
     setSaveError(null);
     clearOutputFields();
+  };
+
+  const getTimerStatus = () => {
+    if (timerMode === "break") {
+      if (isRunning) return "Break in progress";
+      if (hasCompletedBreak || timeLeft === 0) return "Break complete";
+      return "Break ready";
+    }
+
+    if (isRunning) return "Session in progress";
+    if (timeLeft === 0) return "Session complete";
+    return "Ready to focus";
+  };
+
+  const getTimerDetail = () => {
+    if (timerMode === "break") {
+      return `${breakMinutes} min break`;
+    }
+
+    return `${focusMinutes} min focus`;
+  };
+
+  const toggleTimer = () => {
+    if (timerMode === "break" && (hasCompletedBreak || timeLeft === 0)) {
+      prepareNextFocus({ start: true });
+      return;
+    }
+
+    setIsRunning((currentValue) => !currentValue);
   };
 
   return (
@@ -288,14 +357,14 @@ export function FocusConsole() {
         <div className="space-y-6 px-5 py-5">
           <div className="rounded-lg border border-neutral-200 bg-[linear-gradient(180deg,#fff,#fafafa)] px-5 py-8 text-center">
             <p className="text-sm font-medium text-neutral-500">
-              {isRunning ? "Session in progress" : timeLeft === 0 ? "Session complete" : "Ready to focus"}
+              {getTimerStatus()}
             </p>
             <p className="mt-3 text-7xl font-semibold tabular-nums text-neutral-950">{formatTime(timeLeft)}</p>
             <div className="mx-auto mt-6 max-w-md">
               <Progress value={progress} className="h-2 bg-orange-100" />
               <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
                 <span>{Math.round(progress)}%</span>
-                <span>{focusMinutes} min focus</span>
+                <span>{getTimerDetail()}</span>
               </div>
             </div>
           </div>
@@ -318,7 +387,7 @@ export function FocusConsole() {
                 max={180}
                 value={focusMinutes}
                 onChange={(event) => changeFocusMinutes(Number(event.target.value))}
-                disabled={isRunning}
+                disabled={isRunning || timerMode === "break"}
                 className="h-10 rounded-md border-neutral-200 bg-white"
               />
             </label>
@@ -330,7 +399,7 @@ export function FocusConsole() {
                 key={preset}
                 type="button"
                 onClick={() => changeFocusMinutes(preset)}
-                disabled={isRunning}
+                disabled={isRunning || timerMode === "break"}
                 className={cn(
                   "h-10 rounded-md border text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                   focusMinutes === preset
@@ -345,19 +414,60 @@ export function FocusConsole() {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
-              onClick={() => setIsRunning((currentValue) => !currentValue)}
-              disabled={timeLeft === 0 || isSaving || isAwaitingWrapUp}
+              onClick={toggleTimer}
+              disabled={(timerMode === "focus" && timeLeft === 0) || isSaving || isAwaitingWrapUp}
               className="h-10 flex-1"
               variant={isRunning ? "secondary" : "default"}
             >
               {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              {isRunning ? "Pause" : "Start focus"}
+              {isRunning
+                ? "Pause"
+                : timerMode === "break" && (hasCompletedBreak || timeLeft === 0)
+                  ? "Start next focus"
+                  : timerMode === "break"
+                    ? "Start break"
+                    : "Start focus"}
             </Button>
             <Button onClick={resetTimer} variant="outline" className="h-10 sm:w-32">
               <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
           </div>
+
+          {timerMode === "break" ? (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-neutral-950">
+                    {hasCompletedBreak || timeLeft === 0 ? "Break complete" : "Break time"}
+                  </h3>
+                  <p className="mt-1 text-sm text-neutral-600">
+                    {hasCompletedBreak || timeLeft === 0
+                      ? "Your next focus block is ready when you are."
+                      : "Step away for a moment. The next focus block can start fresh after this."}
+                  </p>
+                </div>
+                <TimerReset className="h-4 w-4 shrink-0 text-emerald-700" />
+              </div>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  onClick={() => prepareNextFocus({ start: true })}
+                  disabled={isRunning && !hasCompletedBreak}
+                  className="h-10 flex-1"
+                >
+                  <Play className="h-4 w-4" />
+                  Start next focus
+                </Button>
+                <Button
+                  onClick={() => prepareNextFocus()}
+                  variant="outline"
+                  className="h-10 sm:w-36"
+                >
+                  Skip break
+                </Button>
+              </div>
+            </div>
+          ) : null}
 
           {isAwaitingWrapUp ? (
             <div className="rounded-lg border border-primary/20 bg-orange-50/60 p-4">
@@ -452,7 +562,8 @@ export function FocusConsole() {
                 min={1}
                 max={60}
                 value={breakMinutes}
-                onChange={(event) => setBreakMinutes(normalizeMinutes(event.target.value, breakMinutes))}
+                onChange={(event) => changeBreakMinutes(Number(event.target.value))}
+                disabled={isRunning}
                 className="h-9 rounded-md border-neutral-200 bg-white"
               />
             </label>
