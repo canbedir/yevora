@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
 import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
+import { useTodayQueue } from "@/components/dashboard/useTodayQueue";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -62,12 +63,22 @@ function getInitials(name?: string | null) {
   );
 }
 
-function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function SidebarNav({
+  pathname,
+  todayCount,
+  onNavigate,
+}: {
+  pathname: string;
+  todayCount: number;
+  onNavigate?: () => void;
+}) {
   return (
     <nav className="space-y-1 px-2">
       {navItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
+        const hasTodaySignals = item.href === "/today" && todayCount > 0;
+        const badgeCount = Math.min(todayCount, 9);
 
         return (
           <Link
@@ -83,7 +94,12 @@ function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: (
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
-            <span>{item.label}</span>
+            <span className="min-w-0 flex-1">{item.label}</span>
+            {hasTodaySignals ? (
+              <span className="yev-live-signal inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
+                {badgeCount}
+              </span>
+            ) : null}
           </Link>
         );
       })}
@@ -154,10 +170,12 @@ function UserMenu({
 function SidebarContent({
   pathname,
   session,
+  todayCount,
   onNavigate,
 }: {
   pathname: string;
   session: { user?: { name?: string | null; email?: string | null; image?: string | null } } | null;
+  todayCount: number;
   onNavigate?: () => void;
 }) {
   return (
@@ -172,7 +190,7 @@ function SidebarContent({
       </div>
 
       <div className="flex-1 py-4">
-        <SidebarNav pathname={pathname} onNavigate={onNavigate} />
+        <SidebarNav pathname={pathname} todayCount={todayCount} onNavigate={onNavigate} />
       </div>
 
       <div className="border-t border-neutral-200 p-2">
@@ -189,11 +207,12 @@ function SidebarContent({
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { items, count, isLoading, hasError } = useTodayQueue();
 
   return (
     <div className="yev-shell min-h-screen bg-neutral-50 text-neutral-950">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[184px] border-r border-neutral-200 bg-neutral-50 lg:block">
-        <SidebarContent pathname={pathname} session={session} />
+        <SidebarContent pathname={pathname} session={session} todayCount={count} />
       </aside>
 
       <div className="min-h-screen lg:pl-[184px]">
@@ -208,7 +227,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[184px] border-r border-neutral-200 p-0">
-                  <SidebarContent pathname={pathname} session={session} />
+                  <SidebarContent pathname={pathname} session={session} todayCount={count} />
                 </SheetContent>
               </Sheet>
             </div>
@@ -216,7 +235,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <NotificationCenter />
+            <NotificationCenter items={items} isLoading={isLoading} hasError={hasError} />
             <UserMenu
               name={session?.user?.name}
               email={session?.user?.email}

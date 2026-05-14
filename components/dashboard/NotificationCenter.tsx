@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Bell,
   CheckCircle2,
@@ -18,22 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type NotificationTone = "focus" | "github" | "notes" | "repo";
-
-interface NotificationItem {
-  id: string;
-  title: string;
-  detail: string;
-  href: string;
-  tone: NotificationTone;
-  external?: boolean;
-}
-
-interface NotificationResponse {
-  items: NotificationItem[];
-  count: number;
-}
+import type { NotificationItem, NotificationTone } from "@/components/dashboard/useTodayQueue";
 
 const toneStyles: Record<NotificationTone, string> = {
   focus: "bg-orange-100 text-orange-700",
@@ -42,40 +27,15 @@ const toneStyles: Record<NotificationTone, string> = {
   repo: "bg-neutral-100 text-neutral-700",
 };
 
-export function NotificationCenter() {
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadNotifications() {
-      try {
-        const response = await fetch("/api/notifications", { cache: "no-store" });
-        if (!response.ok) throw new Error("Failed to load notifications");
-
-        const data = (await response.json()) as NotificationResponse;
-        if (!isMounted) return;
-
-        setItems(data.items);
-        setHasError(false);
-      } catch {
-        if (!isMounted) return;
-        setHasError(true);
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadNotifications();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+export function NotificationCenter({
+  items,
+  isLoading,
+  hasError,
+}: {
+  items: NotificationItem[];
+  isLoading: boolean;
+  hasError: boolean;
+}) {
 
   const visibleCount = useMemo(() => Math.min(items.length, 9), [items.length]);
 
