@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import type { ComponentType, ReactNode } from "react";
 import {
   BarChart3,
+  CalendarDays,
   FileText,
   GitBranch,
   LayoutDashboard,
@@ -35,13 +36,14 @@ interface DashboardShellProps {
 }
 
 interface NavItem {
-  href: "/dashboard" | "/focus" | "/repos" | "/notes" | "/stats";
+  href: "/dashboard" | "/today" | "/focus" | "/repos" | "/notes" | "/stats";
   label: string;
   icon: ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/today", label: "Today", icon: CalendarDays },
   { href: "/focus", label: "Focus", icon: Timer },
   { href: "/repos", label: "Repositories", icon: GitBranch },
   { href: "/notes", label: "Notes", icon: FileText },

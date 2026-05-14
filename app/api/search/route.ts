@@ -27,6 +27,14 @@ const PAGE_RESULTS: SearchResult[] = [
     meta: "Page",
   },
   {
+    id: "page-today",
+    type: "page",
+    title: "Today",
+    description: "Open the queue for today's focus, PRs, notes, and repo signals.",
+    href: "/today",
+    meta: "Page",
+  },
+  {
     id: "page-focus",
     type: "page",
     title: "Focus",
