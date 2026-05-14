@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { refreshTodayQueue } from "@/components/dashboard/useTodayQueue";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -239,6 +240,7 @@ export function FocusConsole() {
         setIsAwaitingWrapUp(false);
         setTaskLabel("");
         clearOutputFields();
+        refreshTodayQueue();
         startBreak();
       } else {
         setSaveError("Session could not be saved. Please try again.");

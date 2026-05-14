@@ -18,9 +18,16 @@ export async function GET() {
   });
   const items = summary.queueItems.slice(0, 6);
 
-  return NextResponse.json({
-    items: items.map(toPublicQueueItem),
-    count: items.length,
-    generatedAt: new Date().toISOString(),
-  });
+  return NextResponse.json(
+    {
+      items: items.map(toPublicQueueItem),
+      count: items.length,
+      generatedAt: new Date().toISOString(),
+    },
+    {
+      headers: {
+        "cache-control": "no-store, max-age=0",
+      },
+    }
+  );
 }

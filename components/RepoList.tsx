@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { saveTrackedRepos } from "@/app/actions/tracked-repos";
+import { refreshTodayQueue } from "@/components/dashboard/useTodayQueue";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
@@ -115,6 +116,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
         .then(() => {
           lastSyncedRepoIdsRef.current = trackedRepoIds;
           setSyncState("saved");
+          refreshTodayQueue();
         })
         .catch((error) => {
           console.error("Failed to save tracked repos", error);

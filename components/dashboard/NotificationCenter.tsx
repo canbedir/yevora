@@ -31,16 +31,18 @@ export function NotificationCenter({
   items,
   isLoading,
   hasError,
+  onOpenChange,
 }: {
   items: NotificationItem[];
   isLoading: boolean;
   hasError: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
 
   const visibleCount = useMemo(() => Math.min(items.length, 9), [items.length]);
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu modal={false} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <button className="relative flex h-8 w-8 items-center justify-center rounded-md text-neutral-600 outline-none transition-colors hover:bg-neutral-100 hover:text-neutral-950 focus-visible:ring-2 focus-visible:ring-primary/30">
           <Bell className="h-4 w-4" />

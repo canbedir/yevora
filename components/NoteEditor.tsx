@@ -6,6 +6,7 @@ import MDEditor from "@uiw/react-md-editor/nohighlight";
 import { AlertCircle, CheckCircle2, CircleDot, Eye, FileText, LoaderCircle, Pencil, Plus, Save } from "lucide-react";
 
 import { createNote, updateNote } from "@/app/actions/notes";
+import { refreshTodayQueue } from "@/components/dashboard/useTodayQueue";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
         router.replace(`/notes?selected=${savedNote.id}`);
       }
 
+      refreshTodayQueue();
       router.refresh();
     } catch (error) {
       console.error("Failed to save note:", error);

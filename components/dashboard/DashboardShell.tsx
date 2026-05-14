@@ -195,7 +195,7 @@ function SidebarContent({
 export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { items, count, isLoading, hasError } = useTodayQueue();
+  const { items, count, isLoading, hasError, refresh } = useTodayQueue();
 
   return (
     <div className="yev-shell min-h-screen bg-neutral-50 text-neutral-950">
@@ -223,7 +223,16 @@ export function DashboardShell({ children }: DashboardShellProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <NotificationCenter items={items} isLoading={isLoading} hasError={hasError} />
+            <NotificationCenter
+              items={items}
+              isLoading={isLoading}
+              hasError={hasError}
+              onOpenChange={(open) => {
+                if (open) {
+                  void refresh();
+                }
+              }}
+            />
             <UserMenu
               name={session?.user?.name}
               image={session?.user?.image}
