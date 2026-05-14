@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import type { Session } from "next-auth";
-import { ArrowUpRight, Code2 } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
+import { YevoraLogo } from "@/components/brand/YevoraLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -40,8 +41,11 @@ export function NavBar({ user }: NavBarProps) {
           href="/"
           className="group flex items-center gap-3 rounded-full pr-2 transition-colors duration-200 ease-out"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-[1.15rem] border border-white/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.95),rgba(250,242,226,0.88))] text-primary shadow-[0_18px_42px_-26px_var(--color-primary)] transition-shadow duration-200 ease-out group-hover:shadow-[0_20px_44px_-28px_var(--color-primary)]">
-            <Code2 className="h-5 w-5" />
+          <div className="flex h-12 w-14 shrink-0 items-center justify-center transition-transform duration-200 ease-out group-hover:scale-[1.02]">
+            <YevoraLogo
+              className="h-12 w-14 drop-shadow-[0_12px_22px_rgba(234,88,12,0.16)]"
+              priority
+            />
           </div>
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground">

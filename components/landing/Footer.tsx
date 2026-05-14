@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { Code2 } from "lucide-react";
+
+import { YevoraLogo } from "@/components/brand/YevoraLogo";
 
 export function Footer() {
   return (
     <footer className="border-t border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(250,247,241,0.96))] py-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 md:flex-row md:items-center md:justify-between md:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.94),rgba(249,241,225,0.92))] text-primary shadow-[0_16px_38px_-26px_var(--color-primary)]">
-            <Code2 className="h-5 w-5" />
+          <div className="flex h-11 w-12 shrink-0 items-center justify-center">
+            <YevoraLogo className="h-11 w-12 drop-shadow-[0_10px_18px_rgba(234,88,12,0.14)]" />
           </div>
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">

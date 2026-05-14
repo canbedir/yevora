@@ -14,9 +14,9 @@ import {
   Menu,
   Settings,
   Timer,
-  Workflow,
 } from "lucide-react";
 
+import { YevoraLogo } from "@/components/brand/YevoraLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -178,8 +178,8 @@ function SidebarContent({
     <div className="flex h-full flex-col bg-neutral-50">
       <div className="flex h-12 items-center border-b border-neutral-200 px-4">
         <Link href="/" className="flex items-center gap-2" onClick={onNavigate}>
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-neutral-950 text-white">
-            <Workflow className="h-4 w-4" />
+          <span className="flex h-8 w-9 shrink-0 items-center justify-center">
+            <YevoraLogo className="h-8 w-9" />
           </span>
           <span className="text-sm font-semibold text-neutral-950">Yevora</span>
         </Link>
