@@ -6,7 +6,6 @@ import { signOut, useSession } from "next-auth/react";
 import type { ComponentType, ReactNode } from "react";
 import {
   BarChart3,
-  Bell,
   FileText,
   GitBranch,
   LayoutDashboard,
@@ -27,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
+import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -214,11 +214,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="relative flex h-8 w-8 items-center justify-center rounded-md text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-950">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-2 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
-              <span className="sr-only">Notifications</span>
-            </button>
+            <NotificationCenter />
             <UserMenu
               name={session?.user?.name}
               email={session?.user?.email}
