@@ -40,10 +40,12 @@ model User {
   emailVerified    DateTime?
   image            String?
   githubUsername   String?
+  trackedReposInitialized Boolean    @default(false)
   accounts         Account[]
   sessions         Session[]
   notes            Note[]
   pomodoroSessions PomodoroSession[]
+  trackedRepos     TrackedRepo[]
   createdAt        DateTime          @default(now())
 }
 
@@ -68,4 +70,15 @@ model PomodoroSession {
   commitCount    Int      @default(0)
   outputSummary  String?  @db.Text
   completedAt    DateTime @default(now())
+}
+
+model TrackedRepo {
+  id        String   @id @default(cuid())
+  userId    String
+  repoId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, repoId])
+  @@index([userId])
 }

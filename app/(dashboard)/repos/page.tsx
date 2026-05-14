@@ -8,6 +8,7 @@ import { RepoList } from "@/components/RepoList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getUserRepos } from "@/lib/github";
+import { prisma } from "@/lib/prisma";
 
 export default async function ReposPage() {
   await connection();
@@ -28,13 +29,30 @@ export default async function ReposPage() {
 async function ReposContent() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.accessToken) {
+  if (!session?.accessToken || !session.user?.id) {
     redirect("/login");
   }
 
-  const repos = await getUserRepos(session.accessToken);
+  const [repos, trackedRepos, userPreferenceState] = await Promise.all([
+    getUserRepos(session.accessToken),
+    prisma.trackedRepo.findMany({
+      where: { userId: session.user.id },
+      select: { repoId: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { trackedReposInitialized: true },
+    }),
+  ]);
 
-  return <RepoList repos={repos} />;
+  return (
+    <RepoList
+      repos={repos}
+      initialTrackedRepoIds={trackedRepos.map((trackedRepo) => trackedRepo.repoId)}
+      hasSavedSelection={Boolean(userPreferenceState?.trackedReposInitialized)}
+    />
+  );
 }
 
 function ReposSkeleton() {

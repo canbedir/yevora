@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, CircleDot, Code2, ExternalLink, Lock, Plus, Search, Star } from "lucide-react";
 
+import { saveTrackedRepos } from "@/app/actions/tracked-repos";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,8 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { GitHubRepo } from "@/types/github";
-
-const TRACKED_REPOS_KEY = "yevora.trackedRepos";
 
 function getRelativeTime(dateString: string) {
   const date = new Date(dateString);
@@ -59,35 +58,62 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export function RepoList({ repos }: { repos: GitHubRepo[] }) {
+type RepoSyncState = "idle" | "saving" | "saved" | "error";
+
+interface RepoListProps {
+  repos: GitHubRepo[];
+  initialTrackedRepoIds: number[];
+  hasSavedSelection: boolean;
+}
+
+function getStatusLabel(status: RepoSyncState) {
+  if (status === "saving") return "Saving to your account";
+  if (status === "saved") return "Saved to your account";
+  if (status === "error") return "Could not save selection";
+  return "Selections stay with your account";
+}
+
+function arraysEqual(left: number[], right: number[]) {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((item, index) => item === right[index]);
+}
+
+export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: RepoListProps) {
   const [search, setSearch] = useState("");
   const [language, setLanguage] = useState("all");
   const [sortBy, setSortBy] = useState("updated");
   const [showAll, setShowAll] = useState(false);
-  const [trackedRepoIds, setTrackedRepoIds] = useState<number[] | null>(() => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    try {
-      const storedValue = window.localStorage.getItem(TRACKED_REPOS_KEY);
-      const storedIds = storedValue ? (JSON.parse(storedValue) as unknown) : null;
-
-      if (Array.isArray(storedIds) && storedIds.every((item) => typeof item === "number")) {
-        return storedIds;
-      }
-    } catch {
-      return null;
-    }
-
-    return null;
-  });
+  const [syncState, setSyncState] = useState<RepoSyncState>("idle");
+  const fallbackTrackedRepoIds = repos.slice(0, 6).map((repo) => repo.id);
+  const [trackedRepoIds, setTrackedRepoIds] = useState<number[]>(
+    hasSavedSelection ? initialTrackedRepoIds : fallbackTrackedRepoIds
+  );
+  const lastSyncedRepoIdsRef = useRef<number[]>(hasSavedSelection ? initialTrackedRepoIds : []);
   const debouncedSearch = useDebounce(search, 250);
 
   useEffect(() => {
-    if (!trackedRepoIds) return;
+    if (arraysEqual(trackedRepoIds, lastSyncedRepoIdsRef.current)) {
+      return;
+    }
 
-    window.localStorage.setItem(TRACKED_REPOS_KEY, JSON.stringify(trackedRepoIds));
+    const timeoutId = window.setTimeout(() => {
+      setSyncState("saving");
+
+      saveTrackedRepos(trackedRepoIds)
+        .then(() => {
+          lastSyncedRepoIdsRef.current = trackedRepoIds;
+          setSyncState("saved");
+        })
+        .catch((error) => {
+          console.error("Failed to save tracked repos", error);
+          setSyncState("error");
+        });
+    }, 280);
+
+    return () => window.clearTimeout(timeoutId);
   }, [trackedRepoIds]);
 
   const uniqueLanguages = useMemo(() => {
@@ -124,11 +150,7 @@ export function RepoList({ repos }: { repos: GitHubRepo[] }) {
     return result;
   }, [repos, debouncedSearch, language, sortBy]);
 
-  const effectiveTrackedRepoIds = useMemo(
-    () => trackedRepoIds ?? repos.slice(0, 6).map((repo) => repo.id),
-    [repos, trackedRepoIds]
-  );
-  const trackedRepoIdSet = useMemo(() => new Set(effectiveTrackedRepoIds), [effectiveTrackedRepoIds]);
+  const trackedRepoIdSet = useMemo(() => new Set(trackedRepoIds), [trackedRepoIds]);
   const displayedRepos = showAll
     ? filteredAndSortedRepos
     : filteredAndSortedRepos.filter((repo) => trackedRepoIdSet.has(repo.id));
@@ -140,15 +162,13 @@ export function RepoList({ repos }: { repos: GitHubRepo[] }) {
     return new Date(repo.updated_at) >= thirtyDaysAgo;
   }).length;
 
-  const toggleTrackedRepo = (repoId: number) => {
+    const toggleTrackedRepo = (repoId: number) => {
     setTrackedRepoIds((currentIds) => {
-      const ids = currentIds ?? effectiveTrackedRepoIds;
-
-      if (ids.includes(repoId)) {
-        return ids.filter((id) => id !== repoId);
+      if (currentIds.includes(repoId)) {
+        return currentIds.filter((id) => id !== repoId);
       }
 
-      return [...ids, repoId];
+      return [...currentIds, repoId];
     });
   };
 
@@ -157,7 +177,7 @@ export function RepoList({ repos }: { repos: GitHubRepo[] }) {
       <div className="grid gap-3 sm:grid-cols-3">
         <RepoStat label="Total repos" value={repos.length.toString()} />
         <RepoStat label="Active in 30 days" value={activeRepos.toString()} />
-        <RepoStat label="Selected repos" value={effectiveTrackedRepoIds.length.toString()} />
+        <RepoStat label="Selected repos" value={trackedRepoIds.length.toString()} />
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -219,9 +239,12 @@ export function RepoList({ repos }: { repos: GitHubRepo[] }) {
             All
           </button>
         </div>
-        <p className="text-xs text-neutral-500">
-          {displayedRepos.length} shown, {privateRepos} private
-        </p>
+        <div className="text-right">
+          <p className="text-xs text-neutral-500">
+            {displayedRepos.length} shown, {privateRepos} private
+          </p>
+          <p className="mt-1 text-[11px] text-neutral-500">{getStatusLabel(syncState)}</p>
+        </div>
       </div>
 
       {displayedRepos.length > 0 ? (
