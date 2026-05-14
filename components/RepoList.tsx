@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import type { GitHubRepo } from "@/types/github";
 
 function getRelativeTime(dateString: string) {
@@ -260,7 +261,10 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
             return (
               <div
                 key={repo.id}
-                className="yev-card yev-card-hover flex min-h-32 flex-col justify-between p-4"
+                className={cn(
+                  "yev-card yev-card-hover flex min-h-32 flex-col justify-between p-4",
+                  isTracked && "yev-selected-card"
+                )}
               >
                 <span>
                   <span className="flex items-start justify-between gap-3">

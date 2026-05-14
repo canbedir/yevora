@@ -355,8 +355,22 @@ export function FocusConsole() {
         </div>
 
         <div className="space-y-6 px-5 py-5">
-          <div className="rounded-lg border border-neutral-200 bg-[linear-gradient(180deg,#fff,#fafafa)] px-5 py-8 text-center">
-            <p className="text-sm font-medium text-neutral-500">
+          <div
+            className={cn(
+              "rounded-lg border border-neutral-200 bg-[linear-gradient(180deg,#fff,#fafafa)] px-5 py-8 text-center transition-all duration-500",
+              isRunning && timerMode === "focus" && "yev-timer-active",
+              timerMode === "break" && "yev-timer-break"
+            )}
+          >
+            <p className="inline-flex items-center justify-center gap-2 text-sm font-medium text-neutral-500">
+              {isRunning ? (
+                <span
+                  className={cn(
+                    "h-2 w-2 rounded-full yev-live-signal",
+                    timerMode === "break" ? "bg-emerald-500" : "bg-primary"
+                  )}
+                />
+              ) : null}
               {getTimerStatus()}
             </p>
             <p className="mt-3 text-7xl font-semibold tabular-nums text-neutral-950">{formatTime(timeLeft)}</p>

@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { CalendarDays, CheckCircle2, Clock, Flame, GitCommitHorizontal, type LucideIcon } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import type { CommitActivity } from "@/types/github";
 
 interface PomodoroSessionData {
@@ -123,6 +124,7 @@ export function StatsCharts({ commitActivity, commitStreakActivity, pomodoroSess
           value={`${streak} days`}
           detail={`${weeklyCommits} commits this week`}
           icon={Flame}
+          isActive={streak > 0}
         />
         <StatCard
           title="Sessions this week"
@@ -204,18 +206,25 @@ function StatCard({
   value,
   detail,
   icon: Icon,
+  isActive = false,
 }: {
   title: string;
   value: string;
   detail: string;
   icon: LucideIcon;
+  isActive?: boolean;
 }) {
   return (
-    <div className="yev-card p-4">
+    <div className={cn("yev-card p-4", isActive && "yev-active-metric")}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-neutral-600">{title}</p>
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
-          <Icon className="h-4 w-4" />
+        <span
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-md bg-neutral-100 text-neutral-700",
+            isActive && "yev-live-signal bg-orange-100 text-primary"
+          )}
+        >
+          <Icon className={cn("h-4 w-4", isActive && "yev-live-flame")} />
         </span>
       </div>
       <p className="mt-4 text-2xl font-semibold text-neutral-950">{value}</p>

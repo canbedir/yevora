@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor/nohighlight";
-import { CheckCircle2, Eye, FileText, LoaderCircle, Pencil, Plus, Save } from "lucide-react";
+import { AlertCircle, CheckCircle2, CircleDot, Eye, FileText, LoaderCircle, Pencil, Plus, Save } from "lucide-react";
 
 import { createNote, updateNote } from "@/app/actions/notes";
 import { Button } from "@/components/ui/button";
@@ -203,7 +203,11 @@ export function NoteEditor({ note }: NoteEditorProps) {
           {saveStatus === "saving" ? (
             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
           ) : saveStatus === "saved" ? (
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
+          ) : saveStatus === "dirty" ? (
+            <CircleDot className="h-3.5 w-3.5 text-primary yev-live-signal" />
+          ) : saveStatus === "error" ? (
+            <AlertCircle className="h-3.5 w-3.5 text-destructive" />
           ) : null}
           {statusLabel}
         </span>

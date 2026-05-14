@@ -27,6 +27,7 @@ import {
   groupCommitsByDay,
 } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
+import { cn } from "@/lib/utils";
 import type { CommitActivity, GitHubCommit, GitHubPR, GitHubRepo } from "@/types/github";
 
 export default async function Page() {
@@ -146,6 +147,7 @@ async function DashboardContent() {
           value={`${commitStreak}`}
           detail={commitStreak > 0 ? "consecutive days" : "ready to begin"}
           icon={Flame}
+          isActive={commitStreak > 0}
         />
         <SummaryCard
           title="Repositories"
@@ -272,11 +274,11 @@ async function DashboardContent() {
               <p className="text-sm font-semibold text-neutral-950">At a glance</p>
               <p className="mt-1 text-sm text-neutral-600">Small signals worth keeping visible.</p>
             </div>
-            <Flame className="h-5 w-5 text-primary" />
+            <Flame className={cn("h-5 w-5 text-primary", commitStreak > 0 && "yev-live-flame")} />
           </div>
           <div className="mt-5 grid gap-2.5">
             <MiniMetric label="Top language" value={topLanguage ?? "Mixed"} />
-            <MiniMetric label="Commit streak" value={`${commitStreak} days`} />
+            <MiniMetric label="Commit streak" value={`${commitStreak} days`} isActive={commitStreak > 0} />
             <MiniMetric label="Focus sessions" value={sessionsThisWeek.toString()} />
             <MiniMetric label="Output logs" value={outputLogsThisWeek.toString()} />
             <MiniMetric label="Open PRs" value={openPRs.length.toString()} />
@@ -313,18 +315,25 @@ function SummaryCard({
   value,
   detail,
   icon: Icon,
+  isActive = false,
 }: {
   title: string;
   value: string;
   detail: string;
   icon: LucideIcon;
+  isActive?: boolean;
 }) {
   return (
-    <div className="yev-card p-4">
+    <div className={cn("yev-card p-4", isActive && "yev-active-metric")}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-neutral-600">{title}</p>
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
-          <Icon className="h-4 w-4" />
+        <span
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-md bg-neutral-100 text-neutral-700",
+            isActive && "yev-live-signal bg-orange-100 text-primary"
+          )}
+        >
+          <Icon className={cn("h-4 w-4", isActive && "yev-live-flame")} />
         </span>
       </div>
       <p className="mt-4 text-2xl font-semibold text-neutral-950">{value}</p>
@@ -364,7 +373,11 @@ function ActivityOverview({
                   {item.count} commits
                 </div>
                 <div
-                  className={item.count > 0 ? "w-7 rounded-t-md bg-primary" : "w-7 rounded bg-orange-200"}
+                  className={cn(
+                    "w-7",
+                    item.count > 0 ? "rounded-t-md bg-primary" : "rounded bg-orange-200",
+                    item.count > 0 && item.count === bestDay.count && "yev-live-signal"
+                  )}
                   style={{ height }}
                   title={`${item.count} commits`}
                 />
@@ -399,11 +412,19 @@ function PanelHeader({ title, meta, href }: { title: string; meta: string; href:
   );
 }
 
-function MiniMetric({ label, value }: { label: string; value: string }) {
+function MiniMetric({ label, value, isActive = false }: { label: string; value: string; isActive?: boolean }) {
   return (
-    <div className="flex min-h-10 items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
+    <div
+      className={cn(
+        "flex min-h-10 items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2",
+        isActive && "yev-active-metric"
+      )}
+    >
       <span className="text-xs text-neutral-500">{label}</span>
-      <span className="text-sm font-semibold text-neutral-950">{value}</span>
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-950">
+        {isActive ? <span className="h-1.5 w-1.5 rounded-full bg-primary yev-live-signal" /> : null}
+        {value}
+      </span>
     </div>
   );
 }
