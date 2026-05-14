@@ -55,7 +55,12 @@ async function NotesContent({ searchParams }: NotesPageProps) {
   const notes = await prisma.note.findMany({
     where: {
       userId: session.user.id,
-      title: q ? { contains: q, mode: "insensitive" } : undefined,
+      OR: q
+        ? [
+            { title: { contains: q, mode: "insensitive" } },
+            { content: { contains: q, mode: "insensitive" } },
+          ]
+        : undefined,
     },
     orderBy: { updatedAt: "desc" },
   });
