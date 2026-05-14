@@ -92,7 +92,7 @@ export function NotificationCenter() {
           <span className="sr-only">Notifications</span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[340px] p-0">
+      <DropdownMenuContent align="end" className="w-[calc(100vw-1rem)] p-0 sm:w-[340px]">
         <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
           <div>
             <p className="text-sm font-semibold text-neutral-950">Today queue</p>

@@ -1,7 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, CircleDot, Code2, ExternalLink, Lock, Plus, Search, Star } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle2,
+  CircleDot,
+  Code2,
+  ExternalLink,
+  LoaderCircle,
+  Lock,
+  Plus,
+  Search,
+  Star,
+} from "lucide-react";
 
 import { saveTrackedRepos } from "@/app/actions/tracked-repos";
 import { Input } from "@/components/ui/input";
@@ -64,13 +76,6 @@ interface RepoListProps {
   repos: GitHubRepo[];
   initialTrackedRepoIds: number[];
   hasSavedSelection: boolean;
-}
-
-function getStatusLabel(status: RepoSyncState) {
-  if (status === "saving") return "Saving to your account";
-  if (status === "saved") return "Saved to your account";
-  if (status === "error") return "Could not save selection";
-  return "Selections stay with your account";
 }
 
 function arraysEqual(left: number[], right: number[]) {
@@ -162,7 +167,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
     return new Date(repo.updated_at) >= thirtyDaysAgo;
   }).length;
 
-    const toggleTrackedRepo = (repoId: number) => {
+  const toggleTrackedRepo = (repoId: number) => {
     setTrackedRepoIds((currentIds) => {
       if (currentIds.includes(repoId)) {
         return currentIds.filter((id) => id !== repoId);
@@ -243,7 +248,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
           <p className="text-xs text-neutral-500">
             {displayedRepos.length} shown, {privateRepos} private
           </p>
-          <p className="mt-1 text-[11px] text-neutral-500">{getStatusLabel(syncState)}</p>
+          <RepoSyncStatus status={syncState} />
         </div>
       </div>
 
@@ -253,81 +258,81 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
             const isTracked = trackedRepoIdSet.has(repo.id);
 
             return (
-            <div
-              key={repo.id}
-              className="yev-card yev-card-hover flex min-h-32 flex-col justify-between p-4"
-            >
-              <span>
-                <span className="flex items-start justify-between gap-3">
-                  <span className="min-w-0">
-                    <span className="flex items-center gap-2">
+              <div
+                key={repo.id}
+                className="yev-card yev-card-hover flex min-h-32 flex-col justify-between p-4"
+              >
+                <span>
+                  <span className="flex items-start justify-between gap-3">
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2">
+                        <a
+                          href={repo.html_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="truncate text-sm font-semibold text-neutral-950 hover:text-primary"
+                        >
+                          {repo.name}
+                        </a>
+                        {repo.private ? <Lock className="h-3.5 w-3.5 shrink-0 text-neutral-400" /> : null}
+                      </span>
+                      <span className="mt-1 block truncate text-xs text-neutral-500">{repo.full_name}</span>
+                    </span>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleTrackedRepo(repo.id)}
+                        className={`flex h-7 w-7 items-center justify-center rounded-md border transition-colors ${
+                          isTracked
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-neutral-200 bg-white text-neutral-500 hover:border-primary/40 hover:text-primary"
+                        }`}
+                        title={isTracked ? "Remove from selected" : "Add to selected"}
+                      >
+                        {isTracked ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                      </button>
                       <a
                         href={repo.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="truncate text-sm font-semibold text-neutral-950 hover:text-primary"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-950"
+                        title="Open on GitHub"
                       >
-                        {repo.name}
+                        <ExternalLink className="h-4 w-4" />
                       </a>
-                      {repo.private ? <Lock className="h-3.5 w-3.5 shrink-0 text-neutral-400" /> : null}
+                    </div>
+                  </span>
+
+                  <span className="mt-3 line-clamp-2 block min-h-10 text-sm leading-5 text-neutral-600">
+                    {repo.description || "No description provided."}
+                  </span>
+                </span>
+
+                <span className="mt-4 flex flex-wrap items-center gap-3 text-xs text-neutral-500">
+                  {repo.language ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className={`h-2 w-2 rounded-full ${getLanguageTone(repo.language)}`} />
+                      {repo.language}
                     </span>
-                    <span className="mt-1 block truncate text-xs text-neutral-500">{repo.full_name}</span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Code2 className="h-3.5 w-3.5" />
+                      Mixed
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5" />
+                    {repo.stargazers_count}
                   </span>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => toggleTrackedRepo(repo.id)}
-                      className={`flex h-7 w-7 items-center justify-center rounded-md border transition-colors ${
-                        isTracked
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-neutral-200 bg-white text-neutral-500 hover:border-primary/40 hover:text-primary"
-                      }`}
-                      title={isTracked ? "Remove from selected" : "Add to selected"}
-                    >
-                      {isTracked ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-                    </button>
-                    <a
-                      href={repo.html_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-950"
-                      title="Open on GitHub"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
-                </span>
-
-                <span className="mt-3 line-clamp-2 block min-h-10 text-sm leading-5 text-neutral-600">
-                  {repo.description || "No description provided."}
-                </span>
-              </span>
-
-              <span className="mt-4 flex flex-wrap items-center gap-3 text-xs text-neutral-500">
-                {repo.language ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className={`h-2 w-2 rounded-full ${getLanguageTone(repo.language)}`} />
-                    {repo.language}
+                  <span className="inline-flex items-center gap-1">
+                    <CircleDot className="h-3.5 w-3.5" />
+                    {repo.open_issues_count}
                   </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Code2 className="h-3.5 w-3.5" />
-                    Mixed
+                  <span className="ml-auto" suppressHydrationWarning>
+                    {getRelativeTime(repo.updated_at)}
                   </span>
-                )}
-                <span className="inline-flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5" />
-                  {repo.stargazers_count}
                 </span>
-                <span className="inline-flex items-center gap-1">
-                  <CircleDot className="h-3.5 w-3.5" />
-                  {repo.open_issues_count}
-                </span>
-                <span className="ml-auto" suppressHydrationWarning>
-                  {getRelativeTime(repo.updated_at)}
-                </span>
-              </span>
-            </div>
+              </div>
             );
           })}
         </div>
@@ -343,6 +348,37 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
       )}
     </div>
   );
+}
+
+function RepoSyncStatus({ status }: { status: RepoSyncState }) {
+  if (status === "saving") {
+    return (
+      <p className="mt-1 inline-flex items-center justify-end gap-1 text-[11px] text-neutral-500">
+        <LoaderCircle className="h-3 w-3 animate-spin" />
+        Saving to your account
+      </p>
+    );
+  }
+
+  if (status === "saved") {
+    return (
+      <p className="mt-1 inline-flex items-center justify-end gap-1 text-[11px] text-emerald-700">
+        <CheckCircle2 className="h-3 w-3" />
+        Saved to your account
+      </p>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <p className="mt-1 inline-flex items-center justify-end gap-1 text-[11px] text-destructive">
+        <AlertCircle className="h-3 w-3" />
+        Could not save selection
+      </p>
+    );
+  }
+
+  return <p className="mt-1 text-[11px] text-neutral-500">Selections stay with your account</p>;
 }
 
 function RepoStat({ label, value }: { label: string; value: string }) {
