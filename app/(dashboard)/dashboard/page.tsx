@@ -17,10 +17,10 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DashboardPageSkeleton } from "@/components/dashboard/PageSkeletons";
 import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import {
   getAuthenticatedGitHubUser,
@@ -37,7 +37,7 @@ export default async function Page() {
   await connection();
 
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
+    <Suspense fallback={<DashboardPageSkeleton />}>
       <DashboardContent />
     </Suspense>
   );
@@ -314,27 +314,6 @@ async function DashboardContent() {
         </div>
       </section>
     </AnimatedGroup>
-  );
-}
-
-function DashboardSkeleton() {
-  return (
-    <div className="mx-auto max-w-[960px] space-y-6">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-64 rounded-md" />
-        <Skeleton className="h-4 w-80 rounded-md" />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-28 rounded-lg" />
-        ))}
-      </div>
-      <Skeleton className="h-64 rounded-lg" />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Skeleton className="h-56 rounded-lg" />
-        <Skeleton className="h-56 rounded-lg" />
-      </div>
-    </div>
   );
 }
 

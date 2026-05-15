@@ -6,11 +6,11 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { NotesContentSkeleton } from "@/components/dashboard/PageSkeletons";
 import { NoteEditor } from "@/components/NoteEditor";
 import { NoteList } from "@/components/NoteList";
 import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -39,7 +39,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
           </Button>
         }
       />
-      <Suspense fallback={<NotesSkeleton />}>
+      <Suspense fallback={<NotesContentSkeleton />}>
         <NotesContent searchParams={searchParams} />
       </Suspense>
     </AnimatedGroup>
@@ -80,15 +80,6 @@ async function NotesContent({ searchParams }: NotesPageProps) {
       <div className="yev-card flex min-h-[520px] flex-col overflow-hidden">
         <NoteEditor key={selectedNote?.id ?? "new-note"} note={selectedNote} />
       </div>
-    </div>
-  );
-}
-
-function NotesSkeleton() {
-  return (
-    <div className="grid flex-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <Skeleton className="h-full min-h-[360px] rounded-lg" />
-      <Skeleton className="h-full min-h-[520px] rounded-lg" />
     </div>
   );
 }

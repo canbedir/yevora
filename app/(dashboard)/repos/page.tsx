@@ -4,9 +4,9 @@ import { connection } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { ReposContentSkeleton } from "@/components/dashboard/PageSkeletons";
 import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { RepoList } from "@/components/RepoList";
-import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getUserRepos } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
@@ -20,7 +20,7 @@ export default async function ReposPage() {
         title="Repositories"
         description="Manage your repositories and track activity."
       />
-      <Suspense fallback={<ReposSkeleton />}>
+      <Suspense fallback={<ReposContentSkeleton />}>
         <ReposContent />
       </Suspense>
     </AnimatedGroup>
@@ -53,18 +53,5 @@ async function ReposContent() {
       initialTrackedRepoIds={trackedRepos.map((trackedRepo) => trackedRepo.repoId)}
       hasSavedSelection={Boolean(userPreferenceState?.trackedReposInitialized)}
     />
-  );
-}
-
-function ReposSkeleton() {
-  return (
-    <div className="space-y-4">
-      <Skeleton className="h-24 rounded-lg" />
-      <div className="grid gap-3 md:grid-cols-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-lg" />
-        ))}
-      </div>
-    </div>
   );
 }

@@ -209,6 +209,12 @@
   }
 }
 
+@keyframes yev-skeleton-shimmer {
+  100% {
+    transform: translateX(200%);
+  }
+}
+
 @layer components {
   /* ── Dashboard shell ───────────────────────────────────────────── */
 
@@ -506,6 +512,7 @@
   .landing-panel,
   .landing-button,
   .landing-outline-button,
+  [data-slot="skeleton"]::before,
   .dashboard-card-hover,
   .yev-live-flame,
   .yev-live-signal,

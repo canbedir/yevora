@@ -5,9 +5,9 @@ import { getServerSession } from "next-auth";
 import type { PomodoroSession } from "@prisma/client";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { StatsContentSkeleton } from "@/components/dashboard/PageSkeletons";
 import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { StatsCharts } from "@/components/StatsCharts";
-import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
 import { getAuthenticatedGitHubUser, getRecentCommits, groupCommitsByDay } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
@@ -22,7 +22,7 @@ export default async function StatsPage() {
         title="Stats"
         description="Read your commit and focus trends without the dashboard noise."
       />
-      <Suspense fallback={<StatsSkeleton />}>
+      <Suspense fallback={<StatsContentSkeleton />}>
         <StatsContent />
       </Suspense>
     </AnimatedGroup>
@@ -70,21 +70,5 @@ async function StatsContent() {
       commitStreakActivity={commitStreakActivity}
       pomodoroSessions={pomodoroSessions}
     />
-  );
-}
-
-function StatsSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <Skeleton className="h-28 rounded-lg" />
-        <Skeleton className="h-28 rounded-lg" />
-        <Skeleton className="h-28 rounded-lg" />
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Skeleton className="h-[300px] rounded-lg" />
-        <Skeleton className="h-[300px] rounded-lg" />
-      </div>
-    </div>
   );
 }
