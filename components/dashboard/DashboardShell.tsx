@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import type { ComponentType, ReactNode } from "react";
+import { useState, type ComponentType, type ReactNode } from "react";
 import {
   BarChart3,
   CalendarDays,
@@ -29,6 +29,7 @@ import {
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
 import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
 import { useTodayQueue } from "@/components/dashboard/useTodayQueue";
+import { AnimatedBackground } from "@/components/motion-primitives/AnimatedBackground";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
@@ -73,31 +74,46 @@ function SidebarNav({
   todayCount: number;
   onNavigate?: () => void;
 }) {
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+
   return (
-    <nav className="space-y-1 px-2">
+    <nav className="space-y-0.5 px-1.5" onMouseLeave={() => setHoveredHref(null)}>
       {navItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
         const hasTodaySignals = item.href === "/today" && todayCount > 0;
         const badgeCount = Math.min(todayCount, 9);
+        const isHighlighted = hoveredHref === item.href || (!hoveredHref && isActive);
 
         return (
           <Link
             key={item.href}
             href={item.href}
             onClick={onNavigate}
+            onMouseEnter={() => setHoveredHref(item.href)}
+            onFocus={() => setHoveredHref(item.href)}
+            onBlur={() => setHoveredHref((currentValue) => (currentValue === item.href ? null : currentValue))}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium transition-colors",
-              isActive
-                ? "bg-neutral-200 text-neutral-950"
-                : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950"
+              "relative isolate flex h-9 items-center gap-3 overflow-hidden rounded-md px-3 text-[13px] font-medium transition-colors",
+              isActive || isHighlighted ? "text-neutral-950" : "text-neutral-700 hover:text-neutral-950"
             )}
           >
-            <Icon className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 flex-1">{item.label}</span>
+            {isHighlighted ? (
+              <AnimatedBackground
+                layoutId="sidebar-nav-highlight"
+                className={cn(
+                  "inset-0 rounded-md border shadow-[0_12px_26px_-24px_rgba(15,23,42,0.36)]",
+                  isActive
+                    ? "border-neutral-200 bg-white"
+                    : "border-white/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(247,242,233,0.9))]"
+                )}
+              />
+            ) : null}
+            <Icon className="relative z-10 h-4 w-4 shrink-0" />
+            <span className="relative z-10 min-w-0 flex-1">{item.label}</span>
             {hasTodaySignals ? (
-              <span className="yev-live-signal inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
+              <span className="yev-live-signal relative z-10 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
                 {badgeCount}
               </span>
             ) : null}

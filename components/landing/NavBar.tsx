@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import type { Session } from "next-auth";
 import { ArrowUpRight } from "lucide-react";
 
 import { YevoraLogo } from "@/components/brand/YevoraLogo";
+import { AnimatedBackground } from "@/components/motion-primitives/AnimatedBackground";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const links = [
   { href: "#features", label: "Features" },
@@ -34,6 +37,8 @@ interface NavBarProps {
 }
 
 export function NavBar({ user }: NavBarProps) {
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/60 bg-[rgba(255,252,247,0.68)] backdrop-blur-2xl">
       <div className="mx-auto flex h-20 w-full max-w-[88rem] items-center justify-between px-5 md:px-8">
@@ -55,15 +60,31 @@ export function NavBar({ user }: NavBarProps) {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-1 rounded-full border border-white/80 bg-white/55 p-1.5 shadow-[0_20px_48px_-34px_rgba(15,23,42,0.25)] lg:flex">
+        <nav
+          className="hidden items-center gap-0 rounded-full border border-white/80 bg-white/55 p-0.5 shadow-[0_20px_48px_-34px_rgba(15,23,42,0.25)] lg:flex"
+          onMouseLeave={() => setHoveredHref(null)}
+        >
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="group relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200 ease-out hover:text-foreground"
+              onMouseEnter={() => setHoveredHref(link.href)}
+              onFocus={() => setHoveredHref(link.href)}
+              onBlur={() => setHoveredHref((currentValue) => (currentValue === link.href ? null : currentValue))}
+              className="group relative isolate overflow-hidden rounded-full px-[14px] py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200 ease-out hover:text-foreground"
             >
-              <span className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(247,242,233,0.92))] opacity-0 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.32)] transition-opacity duration-200 ease-out group-hover:opacity-100" />
-              <span className="absolute inset-x-5 bottom-1.5 h-px bg-gradient-to-r from-transparent via-primary/65 to-transparent opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100" />
+              {hoveredHref === link.href ? (
+                <AnimatedBackground
+                  layoutId="landing-nav-highlight"
+                  className="inset-0 rounded-full border border-white/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(247,242,233,0.92))] shadow-[0_18px_36px_-28px_rgba(15,23,42,0.32)]"
+                />
+              ) : null}
+              <span
+                className={cn(
+                  "absolute inset-x-[14px] bottom-1.5 h-px bg-gradient-to-r from-transparent via-primary/65 to-transparent transition-opacity duration-200 ease-out",
+                  hoveredHref === link.href ? "opacity-100" : "opacity-0"
+                )}
+              />
               <span className="relative z-10 block">
                 {link.label}
               </span>

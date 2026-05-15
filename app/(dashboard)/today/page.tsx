@@ -9,9 +9,7 @@ import {
   CheckCircle2,
   Clock3,
   ExternalLink,
-  FileText,
   Flame,
-  FolderGit2,
   GitPullRequest,
   ListChecks,
   Timer,
@@ -19,25 +17,12 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { QueueSignalList } from "@/components/dashboard/QueueSignalList";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { authOptions } from "@/lib/auth";
-import { getTodaySummary, type TodayQueueItem, type TodayQueueTone } from "@/lib/today";
+import { getTodaySummary } from "@/lib/today";
 import { cn } from "@/lib/utils";
-
-const toneIcons: Record<TodayQueueTone, LucideIcon> = {
-  focus: Timer,
-  github: GitPullRequest,
-  notes: FileText,
-  repo: FolderGit2,
-};
-
-const toneStyles: Record<TodayQueueTone, string> = {
-  focus: "bg-orange-100 text-orange-700",
-  github: "bg-sky-100 text-sky-700",
-  notes: "bg-emerald-100 text-emerald-700",
-  repo: "bg-neutral-100 text-neutral-700",
-};
 
 export default async function TodayPage() {
   await connection();
@@ -113,7 +98,7 @@ export default async function TodayPage() {
 
           <div className="divide-y divide-neutral-200">
             {topQueueItems.length > 0 ? (
-              topQueueItems.map((item) => <QueueCard key={item.id} item={item} />)
+              <QueueSignalList items={topQueueItems} variant="today" />
             ) : (
               <EmptyQueue />
             )}
@@ -267,41 +252,6 @@ function TodayMetric({
       <p className="mt-4 text-2xl font-semibold text-neutral-950">{value}</p>
       <p className="mt-1 text-xs text-neutral-500">{detail}</p>
     </div>
-  );
-}
-
-function QueueCard({ item }: { item: TodayQueueItem }) {
-  const Icon = toneIcons[item.tone];
-  const content = (
-    <>
-      <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md ${toneStyles[item.tone]}`}>
-        <Icon className="h-4 w-4" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-neutral-950">{item.title}</span>
-        <span className="mt-1 block text-sm leading-6 text-neutral-600">{item.detail}</span>
-      </span>
-      {item.external ? (
-        <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-neutral-400" />
-      ) : (
-        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-neutral-400" />
-      )}
-    </>
-  );
-  const className = "flex items-start gap-3 px-5 py-4 transition-colors hover:bg-neutral-50";
-
-  if (item.external) {
-    return (
-      <a href={item.href} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <Link href={item.href} className={className}>
-      {content}
-    </Link>
   );
 }
 

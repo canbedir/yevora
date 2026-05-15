@@ -1,31 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import {
   Bell,
   CheckCircle2,
-  CircleDot,
-  ExternalLink,
-  FileText,
-  GitPullRequest,
-  Timer,
 } from "lucide-react";
 
+import { QueueSignalList } from "@/components/dashboard/QueueSignalList";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { NotificationItem, NotificationTone } from "@/components/dashboard/useTodayQueue";
-
-const toneStyles: Record<NotificationTone, string> = {
-  focus: "bg-orange-100 text-orange-700",
-  github: "bg-sky-100 text-sky-700",
-  notes: "bg-emerald-100 text-emerald-700",
-  repo: "bg-neutral-100 text-neutral-700",
-};
+import type { NotificationItem } from "@/components/dashboard/useTodayQueue";
 
 export function NotificationCenter({
   items,
@@ -70,7 +58,7 @@ export function NotificationCenter({
           ) : hasError ? (
             <QueueState title="Could not load queue" detail="Try opening notifications again in a moment." />
           ) : items.length > 0 ? (
-            items.map((item) => <QueueLink key={item.id} item={item} />)
+            <QueueSignalList items={items} variant="notification" />
           ) : (
             <QueueState
               icon={<CheckCircle2 className="h-5 w-5 text-emerald-600" />}
@@ -82,44 +70,6 @@ export function NotificationCenter({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function QueueLink({ item }: { item: NotificationItem }) {
-  const content = (
-    <>
-      <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${toneStyles[item.tone]}`}>
-        <ToneIcon tone={item.tone} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-neutral-950">{item.title}</span>
-        <span className="mt-0.5 line-clamp-2 block text-xs leading-5 text-neutral-500">{item.detail}</span>
-      </span>
-      {item.external ? <ExternalLink className="mt-1 h-3.5 w-3.5 shrink-0 text-neutral-400" /> : null}
-    </>
-  );
-  const className =
-    "flex items-start gap-3 rounded-md px-2.5 py-2.5 outline-none transition-colors hover:bg-neutral-50 focus-visible:bg-neutral-50";
-
-  if (item.external) {
-    return (
-      <a href={item.href} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <Link href={item.href} className={className}>
-      {content}
-    </Link>
-  );
-}
-
-function ToneIcon({ tone }: { tone: NotificationTone }) {
-  if (tone === "focus") return <Timer className="h-4 w-4" />;
-  if (tone === "github") return <GitPullRequest className="h-4 w-4" />;
-  if (tone === "notes") return <FileText className="h-4 w-4" />;
-  return <CircleDot className="h-4 w-4" />;
 }
 
 function QueueState({

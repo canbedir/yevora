@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   CheckCircle2,
   Clock3,
@@ -134,6 +135,7 @@ export function FocusConsole() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasLoadedStoredSettings, setHasLoadedStoredSettings] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const activeMinutes = timerMode === "focus" ? focusMinutes : breakMinutes;
   const totalSeconds = activeMinutes * 60;
@@ -154,6 +156,12 @@ export function FocusConsole() {
       Boolean(session.outputSummary || session.repositoryName || (session.commitCount ?? 0) > 0)
   ).length;
   const recentSessions = sessions.slice(0, 5);
+  const statusTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: 0.24, ease: [0.22, 1, 0.36, 1] as const };
+  const panelTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: 0.34, ease: [0.22, 1, 0.36, 1] as const };
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -357,33 +365,65 @@ export function FocusConsole() {
         </div>
 
         <div className="space-y-6 px-5 py-5">
-          <div
+          <motion.div
+            layout
+            transition={panelTransition}
             className={cn(
               "rounded-lg border border-neutral-200 bg-[linear-gradient(180deg,#fff,#fafafa)] px-5 py-8 text-center transition-all duration-500",
               isRunning && timerMode === "focus" && "yev-timer-active",
               timerMode === "break" && "yev-timer-break"
             )}
           >
-            <p className="inline-flex items-center justify-center gap-2 text-sm font-medium text-neutral-500">
-              {isRunning ? (
-                <span
-                  className={cn(
-                    "h-2 w-2 rounded-full yev-live-signal",
-                    timerMode === "break" ? "bg-emerald-500" : "bg-primary"
-                  )}
-                />
-              ) : null}
-              {getTimerStatus()}
-            </p>
-            <p className="mt-3 text-7xl font-semibold tabular-nums text-neutral-950">{formatTime(timeLeft)}</p>
+            <AnimatePresence initial={false} mode="wait">
+              <motion.p
+                key={`${timerMode}-${getTimerStatus()}`}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={statusTransition}
+                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-neutral-500"
+              >
+                {isRunning ? (
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full yev-live-signal",
+                      timerMode === "break" ? "bg-emerald-500" : "bg-primary"
+                    )}
+                  />
+                ) : null}
+                {getTimerStatus()}
+              </motion.p>
+            </AnimatePresence>
+            <AnimatePresence initial={false} mode="wait">
+              <motion.p
+                key={timerMode}
+                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.985 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.015 }}
+                transition={panelTransition}
+                className="mt-3 text-7xl font-semibold tabular-nums text-neutral-950"
+              >
+                {formatTime(timeLeft)}
+              </motion.p>
+            </AnimatePresence>
             <div className="mx-auto mt-6 max-w-md">
               <Progress value={progress} className="h-2 bg-orange-100" />
               <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
                 <span>{Math.round(progress)}%</span>
-                <span>{getTimerDetail()}</span>
+                <AnimatePresence initial={false} mode="wait">
+                  <motion.span
+                    key={getTimerDetail()}
+                    initial={prefersReducedMotion ? false : { opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 6 }}
+                    transition={statusTransition}
+                  >
+                    {getTimerDetail()}
+                  </motion.span>
+                </AnimatePresence>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           <div className="grid gap-4 md:grid-cols-[1fr_220px]">
             <label className="space-y-2">
@@ -450,8 +490,16 @@ export function FocusConsole() {
             </Button>
           </div>
 
-          {timerMode === "break" ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
+          <AnimatePresence initial={false} mode="wait">
+            {timerMode === "break" ? (
+              <motion.div
+                key="break-panel"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14, filter: "blur(10px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10, filter: "blur(8px)" }}
+                transition={panelTransition}
+                className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4"
+              >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-semibold text-neutral-950">
@@ -482,11 +530,16 @@ export function FocusConsole() {
                   Skip break
                 </Button>
               </div>
-            </div>
-          ) : null}
-
-          {isAwaitingWrapUp ? (
-            <div className="rounded-lg border border-primary/20 bg-orange-50/60 p-4">
+              </motion.div>
+            ) : isAwaitingWrapUp ? (
+              <motion.div
+                key="wrap-up-panel"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14, filter: "blur(10px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10, filter: "blur(8px)" }}
+                transition={panelTransition}
+                className="rounded-lg border border-primary/20 bg-orange-50/60 p-4"
+              >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-semibold text-neutral-950">Session output</h3>
@@ -555,8 +608,9 @@ export function FocusConsole() {
                   Save without output
                 </Button>
               </div>
-            </div>
-          ) : null}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
       </section>
 
