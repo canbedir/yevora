@@ -123,7 +123,7 @@ function UserMenu({
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         {compact ? (
-          <button className="inline-flex h-9 items-center gap-2 rounded-full border border-neutral-200 bg-white px-1.5 pr-2 text-left shadow-[0_8px_24px_-18px_rgba(15,23,42,0.28)] outline-none transition-colors hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-primary/20">
+          <button className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-white px-1.5 pr-2 text-left shadow-[0_8px_24px_-18px_rgba(15,23,42,0.28)] outline-none transition-colors hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-primary/20">
             <Avatar className="h-7 w-7 bg-neutral-950 text-white">
               <AvatarImage src={image ?? undefined} alt={name ?? "User"} />
               <AvatarFallback className="bg-neutral-950 text-[11px] font-semibold text-white">
@@ -136,7 +136,7 @@ function UserMenu({
             <ChevronDown className="hidden h-3.5 w-3.5 text-neutral-400 sm:inline" />
           </button>
         ) : (
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left outline-none transition-colors hover:bg-neutral-100">
+          <button className="flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left outline-none transition-colors hover:bg-neutral-100">
             <Avatar className="h-8 w-8 bg-neutral-200">
               <AvatarImage src={image ?? undefined} alt={name ?? "User"} />
               <AvatarFallback className="text-[11px] font-semibold">{initials}</AvatarFallback>

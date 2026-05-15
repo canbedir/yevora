@@ -44,7 +44,7 @@ export function NotificationCenter({
   return (
     <DropdownMenu modal={false} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <button className="relative flex h-8 w-8 items-center justify-center rounded-md text-neutral-600 outline-none transition-colors hover:bg-neutral-100 hover:text-neutral-950 focus-visible:ring-2 focus-visible:ring-primary/30">
+        <button className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-neutral-600 outline-none transition-colors hover:bg-neutral-100 hover:text-neutral-950 focus-visible:ring-2 focus-visible:ring-primary/30">
           <Bell className="h-4 w-4" />
           {items.length > 0 ? (
             <span className="yev-live-signal absolute right-1 top-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-semibold leading-none text-primary-foreground ring-2 ring-neutral-50">
