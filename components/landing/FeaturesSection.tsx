@@ -75,7 +75,7 @@ export function FeaturesSection() {
               what you shipped, how focused you were, and whether you are actually building
               momentum.
             </p>
-            <div className="mt-8 rounded-[1.6rem] border border-white/80 bg-white/58 p-5 shadow-[0_26px_70px_-56px_rgba(15,23,42,0.48)] backdrop-blur">
+            <div className="landing-panel mt-8 rounded-[1.6rem] border border-white/80 bg-white/58 p-5 shadow-[0_26px_70px_-56px_rgba(15,23,42,0.48)] backdrop-blur">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
                 Design direction
               </p>
@@ -107,10 +107,6 @@ export function FeaturesSection() {
                   <div className="relative z-10">
                     <h3 className="mt-6 text-[1.35rem] font-semibold tracking-tight">{feature.title}</h3>
                     <p className="mt-3.5 leading-7 text-muted-foreground">{feature.description}</p>
-                  </div>
-                  <div className="relative z-10 mt-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
-                    Designed for repeat use
                   </div>
                 </article>
               );
