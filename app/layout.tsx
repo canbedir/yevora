@@ -15,13 +15,57 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
 });
 
+const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+const siteDescription =
+  "A calmer developer workspace for GitHub activity, focus sessions, searchable notes, and weekly momentum.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  applicationName: "Yevora",
   title: {
     default: "Yevora",
     template: "%s | Yevora",
   },
-  description:
-    "An all-in-one developer dashboard for GitHub activity, focus sessions, notes, and weekly momentum.",
+  description: siteDescription,
+  keywords: [
+    "developer dashboard",
+    "github",
+    "pomodoro",
+    "focus sessions",
+    "notes",
+    "productivity",
+    "today queue",
+  ],
+  authors: [{ name: "Yevora" }],
+  creator: "Yevora",
+  publisher: "Yevora",
+  category: "productivity",
+  alternates: {
+    canonical: "/",
+  },
+  manifest: "/manifest.webmanifest",
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Yevora",
+    title: "Yevora",
+    description: siteDescription,
+    locale: "en_US",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Yevora workspace overview card",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yevora",
+    description: siteDescription,
+    images: ["/twitter-image"],
+  },
 };
 
 interface RootLayoutProps {
