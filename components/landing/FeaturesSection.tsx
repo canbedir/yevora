@@ -56,14 +56,21 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
+      data-landing-section
       className="relative overflow-hidden border-y border-border/70 bg-[linear-gradient(180deg,rgba(247,244,238,0.76),rgba(255,255,255,0.96))] py-28"
     >
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent" />
-      <div className="landing-orb absolute left-[-6rem] top-18 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
-      <div className="landing-orb landing-orb-delay absolute right-[-4rem] bottom-10 h-40 w-40 rounded-full bg-sky-500/10 blur-3xl" />
+      <div
+        data-landing-parallax
+        className="landing-orb absolute left-[-6rem] top-18 h-44 w-44 rounded-full bg-primary/10 blur-3xl"
+      />
+      <div
+        data-landing-parallax
+        className="landing-orb landing-orb-delay absolute right-[-4rem] bottom-10 h-40 w-40 rounded-full bg-sky-500/10 blur-3xl"
+      />
       <div className="mx-auto w-full max-w-[88rem] px-5 md:px-8">
         <div className="grid gap-12 xl:grid-cols-[0.72fr_1.28fr] xl:items-start">
-          <div className="max-w-lg xl:sticky xl:top-28">
+          <div data-landing-item="section" className="max-w-lg xl:sticky xl:top-28">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
               Built for daily flow
             </p>
@@ -89,13 +96,14 @@ export function FeaturesSection() {
             </div>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div data-landing-stagger="features" className="grid gap-5 md:grid-cols-2">
             {features.map((feature) => {
               const Icon = feature.icon;
 
               return (
                 <article
                   key={feature.title}
+                  data-landing-item="group"
                   className="landing-panel group rounded-[1.9rem] border border-white/85 bg-background/90 p-7 shadow-[0_24px_80px_-56px_rgba(15,23,42,0.5)] hover:border-primary/18"
                 >
                   <div className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-white/85 to-transparent opacity-80" />

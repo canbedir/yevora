@@ -49,23 +49,33 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
   const ctaLabel = isAuthenticated ? "Open Today" : "Start with GitHub";
 
   return (
-    <section className="relative overflow-hidden pb-28 pt-16 md:pb-36 md:pt-20">
+    <section data-landing-hero className="relative overflow-hidden pb-28 pt-16 md:pb-36 md:pt-20">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(236,170,58,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(32,174,210,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.88),rgba(253,249,241,0.96)_54%,rgba(255,255,255,1))]" />
-      <div className="landing-orb landing-glow absolute left-1/2 top-0 -z-10 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
-      <div className="landing-orb landing-orb-delay absolute left-[10%] top-28 -z-10 hidden h-32 w-32 rounded-full bg-amber-300/18 blur-3xl lg:block" />
-      <div className="landing-orb absolute right-[9%] top-44 -z-10 hidden h-36 w-36 rounded-full bg-sky-400/16 blur-3xl lg:block" />
+      <div
+        data-landing-parallax
+        className="landing-orb landing-glow absolute left-1/2 top-0 -z-10 h-72 w-[44rem] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl"
+      />
+      <div
+        data-landing-parallax
+        className="landing-orb landing-orb-delay absolute left-[10%] top-28 -z-10 hidden h-32 w-32 rounded-full bg-amber-300/18 blur-3xl lg:block"
+      />
+      <div
+        data-landing-parallax
+        className="landing-orb absolute right-[9%] top-44 -z-10 hidden h-36 w-36 rounded-full bg-sky-400/16 blur-3xl lg:block"
+      />
       <div className="absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <div className="mx-auto w-full max-w-[88rem] px-5 md:px-8">
         <div className="mx-auto max-w-5xl text-center">
           <Badge
+            data-hero-reveal
             variant="outline"
             className="mb-7 h-auto rounded-full border-white/80 bg-background/88 px-4 py-1.5 text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground shadow-[0_20px_44px_-30px_rgba(15,23,42,0.34)]"
           >
             GitHub + Pomodoro + Notes + Streaks
           </Badge>
 
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
+          <div data-hero-reveal className="mb-8 flex flex-wrap justify-center gap-2">
             {rhythmTags.map((tag) => (
               <span
                 key={tag}
@@ -76,7 +86,10 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
             ))}
           </div>
 
-          <h1 className="mx-auto max-w-4xl text-[clamp(3.5rem,10vw,7.5rem)] font-extrabold leading-[0.9] tracking-[-0.06em] text-foreground">
+          <h1
+            data-hero-reveal
+            className="mx-auto max-w-4xl text-[clamp(3.5rem,10vw,7.5rem)] font-extrabold leading-[0.9] tracking-[-0.06em] text-foreground"
+          >
             Your developer
             <span className="block">rhythm,</span>
             <span className="block bg-gradient-to-r from-primary via-amber-500 to-sky-600 bg-clip-text text-transparent">
@@ -84,13 +97,16 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
             </span>
           </h1>
 
-          <p className="mx-auto mt-8 max-w-3xl text-[1.05rem] leading-8 text-muted-foreground md:text-xl md:leading-9">
+          <p
+            data-hero-reveal
+            className="mx-auto mt-8 max-w-3xl text-[1.05rem] leading-8 text-muted-foreground md:text-xl md:leading-9"
+          >
             Yevora pulls your repositories, pull requests, notes, focus sessions, and
             weekly streaks into a single command center so your momentum never disappears
             between tabs.
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div data-hero-reveal className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button
               asChild
               size="lg"
@@ -111,10 +127,11 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
             </Button>
           </div>
 
-          <div className="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-3">
+          <div data-hero-reveal className="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-3">
             {heroStats.map((item) => (
               <div
                 key={item.label}
+                data-hero-chip
                 className={cn(
                   "landing-panel cursor-default rounded-[1.75rem] border border-white/85 bg-gradient-to-br p-5 shadow-[0_28px_64px_-48px_rgba(15,23,42,0.42)] backdrop-blur",
                   item.tone
@@ -131,9 +148,15 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
           </div>
         </div>
 
-        <div className="relative mx-auto mt-18 w-full max-w-6xl">
-          <div className="landing-orb absolute -left-10 top-10 hidden h-40 w-40 rounded-full bg-primary/18 blur-3xl xl:block" />
-          <div className="landing-orb landing-orb-delay absolute -right-12 bottom-12 hidden h-44 w-44 rounded-full bg-sky-500/16 blur-3xl xl:block" />
+        <div data-hero-showcase className="relative mx-auto mt-18 w-full max-w-6xl">
+          <div
+            data-landing-parallax
+            className="landing-orb absolute -left-10 top-10 hidden h-40 w-40 rounded-full bg-primary/18 blur-3xl xl:block"
+          />
+          <div
+            data-landing-parallax
+            className="landing-orb landing-orb-delay absolute -right-12 bottom-12 hidden h-44 w-44 rounded-full bg-sky-500/16 blur-3xl xl:block"
+          />
           <div className="absolute left-8 top-6 hidden rounded-full border border-white/70 bg-white/70 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground shadow-[0_18px_42px_-28px_rgba(15,23,42,0.3)] lg:block">
             Live command center
           </div>

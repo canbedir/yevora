@@ -18,12 +18,21 @@ export function CTASection({ isAuthenticated }: CTASectionProps) {
   const label = isAuthenticated ? "Open today" : "Connect GitHub";
 
   return (
-    <section id="workflow" className="relative overflow-hidden border-t border-border/70 py-24">
+    <section id="workflow" data-landing-section className="relative overflow-hidden border-t border-border/70 py-24">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(236,170,58,0.12),transparent_35%),linear-gradient(180deg,rgba(252,249,244,0.8),rgba(255,255,255,1))]" />
-      <div className="landing-orb absolute left-[12%] top-10 -z-10 h-32 w-32 rounded-full bg-primary/12 blur-3xl" />
-      <div className="landing-orb landing-orb-delay absolute right-[12%] bottom-0 -z-10 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl" />
+      <div
+        data-landing-parallax
+        className="landing-orb absolute left-[12%] top-10 -z-10 h-32 w-32 rounded-full bg-primary/12 blur-3xl"
+      />
+      <div
+        data-landing-parallax
+        className="landing-orb landing-orb-delay absolute right-[12%] bottom-0 -z-10 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl"
+      />
       <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-        <div className="landing-panel overflow-hidden rounded-[2.5rem] border border-border/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(245,240,231,0.92))] p-8 shadow-[0_36px_120px_-70px_rgba(15,23,42,0.6)] md:p-10">
+        <div
+          data-landing-item="section"
+          className="landing-panel overflow-hidden rounded-[2.5rem] border border-border/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(245,240,231,0.92))] p-8 shadow-[0_36px_120px_-70px_rgba(15,23,42,0.6)] md:p-10"
+        >
           <Badge variant="outline" className="rounded-full border-primary/20 bg-background/80 px-3 py-1 text-muted-foreground">
             Your calm command center
           </Badge>
@@ -49,10 +58,11 @@ export function CTASection({ isAuthenticated }: CTASectionProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div data-landing-stagger="cta-signals" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {ctaSignals.map((item) => (
                   <div
                     key={item.label}
+                    data-landing-item="group"
                     className="landing-panel rounded-[1.45rem] border border-white/80 bg-white/72 px-4 py-4 shadow-[0_22px_58px_-40px_rgba(15,23,42,0.32)]"
                   >
                     <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">

@@ -152,6 +152,31 @@
   }
 }
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 @keyframes landing-float {
   0%, 100% {
     transform: translate3d(0, 0, 0);
@@ -501,6 +526,14 @@
 
   .landing-glow {
     animation: landing-glow 8s ease-in-out infinite;
+  }
+
+  [data-hero-reveal],
+  [data-hero-chip],
+  [data-hero-showcase],
+  [data-landing-item],
+  [data-landing-parallax] {
+    will-change: transform, opacity, filter;
   }
 }
 

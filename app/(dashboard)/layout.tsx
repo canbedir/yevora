@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { SessionProviderWrapper } from "@/components/SessionProviderWrapper";
 
-export const unstable_instant = false;
+export const unstable_instant = {
+  prefetch: "static",
+};
 
 interface DashboardLayoutProps {
   children: ReactNode;
