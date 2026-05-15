@@ -81,7 +81,7 @@ async function DashboardContent() {
   const recentNotesPromise = prisma.note.findMany({
     where: { userId: session.user.id },
     orderBy: { updatedAt: "desc" },
-    take: 3,
+    take: 5,
     select: {
       id: true,
       title: true,
@@ -125,7 +125,7 @@ async function DashboardContent() {
   const topLanguage = getTopLanguage(repos);
   const topRepos = [...repos]
     .sort((left, right) => new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime())
-    .slice(0, 3);
+    .slice(0, 5);
   const latestPRs = [...openPRs]
     .sort((left, right) => new Date(right.created_at).getTime() - new Date(left.created_at).getTime())
     .slice(0, 3);
@@ -174,7 +174,7 @@ async function DashboardContent() {
             meta={`${totalStars} stars`}
             href="/repos"
           />
-          <div className="min-h-0 flex-1 divide-y divide-neutral-200 overflow-hidden">
+          <div className="yev-scroll-panel min-h-0 flex-1 divide-y divide-neutral-200">
             {topRepos.length > 0 ? (
               topRepos.map((repo) => (
                 <a
@@ -223,7 +223,7 @@ async function DashboardContent() {
 
         <div className="yev-card flex h-[340px] flex-col overflow-hidden">
           <PanelHeader title="Open PR pipeline" meta={`${openPRs.length} open`} href="/repos" />
-          <div className="min-h-0 flex-1 divide-y divide-neutral-200 overflow-hidden">
+          <div className="yev-scroll-panel min-h-0 flex-1 divide-y divide-neutral-200">
             {latestPRs.length > 0 ? (
               latestPRs.map((pullRequest) => (
                 <a
@@ -259,7 +259,7 @@ async function DashboardContent() {
 
         <div className="yev-card flex h-[340px] flex-col overflow-hidden">
           <PanelHeader title="Latest notes" meta={`${noteCount} notes`} href="/notes" />
-          <div className="min-h-0 flex-1 divide-y divide-neutral-200 overflow-hidden">
+          <div className="yev-scroll-panel min-h-0 flex-1 divide-y divide-neutral-200">
             {recentNotes.length > 0 ? (
               recentNotes.map((note) => (
                 <Link

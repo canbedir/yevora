@@ -259,6 +259,17 @@
     border-color: rgba(234, 88, 12, 0.2);
   }
 
+  .yev-scroll-panel {
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .yev-scroll-panel::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
   .yev-timer-active {
     background:
       linear-gradient(180deg, rgba(255, 247, 237, 0.92), rgba(255, 255, 255, 0.96));
