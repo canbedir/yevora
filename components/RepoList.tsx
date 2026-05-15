@@ -450,7 +450,7 @@ function RepoSyncStatus({ status }: { status: RepoSyncState }) {
 
 function RepoStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="yev-card p-4">
+    <div className="yev-card yev-card-hover p-4">
       <p className="text-xs text-neutral-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-neutral-950">{value}</p>
     </div>

@@ -351,7 +351,7 @@ export function FocusConsole() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <section className="yev-card overflow-hidden">
+      <section className="yev-card yev-card-hover overflow-hidden">
         <div className="border-b border-neutral-200 px-5 py-4">
           <div className="flex items-center justify-between gap-4">
             <div>
@@ -615,7 +615,7 @@ export function FocusConsole() {
       </section>
 
       <aside className="space-y-4">
-        <section className="yev-card p-5">
+        <section className="yev-card yev-card-hover p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-neutral-950">Focus settings</h2>
@@ -644,7 +644,7 @@ export function FocusConsole() {
           </div>
         </section>
 
-        <section className="yev-card p-5">
+        <section className="yev-card yev-card-hover p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-neutral-950">Progress</h2>
@@ -660,7 +660,7 @@ export function FocusConsole() {
           </div>
         </section>
 
-        <section className="yev-card overflow-hidden">
+        <section className="yev-card yev-card-hover overflow-hidden">
           <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
             <h2 className="text-sm font-semibold text-neutral-950">Recent sessions</h2>
             <TimerReset className="h-4 w-4 text-neutral-500" />

@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import type { PomodoroSession } from "@prisma/client";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { StatsCharts } from "@/components/StatsCharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authOptions } from "@/lib/auth";
@@ -16,7 +17,7 @@ export default async function StatsPage() {
   await connection();
 
   return (
-    <div className="mx-auto max-w-[960px] space-y-6">
+    <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
         title="Stats"
         description="Read your commit and focus trends without the dashboard noise."
@@ -24,7 +25,7 @@ export default async function StatsPage() {
       <Suspense fallback={<StatsSkeleton />}>
         <StatsContent />
       </Suspense>
-    </div>
+    </AnimatedGroup>
   );
 }
 

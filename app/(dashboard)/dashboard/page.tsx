@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -131,7 +132,7 @@ async function DashboardContent() {
     .slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-[960px] space-y-6">
+    <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
         title={`Welcome back, ${displayName}`}
         description="A calmer overview of your repositories, notes, focus time, and shipping rhythm."
@@ -168,7 +169,7 @@ async function DashboardContent() {
       <ActivityOverview activity={commitActivity} totalCommits={weeklyCommits} />
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="yev-card flex h-[340px] flex-col overflow-hidden">
+        <div className="yev-card yev-card-hover flex h-[340px] flex-col overflow-hidden">
           <PanelHeader
             title="Repository spotlight"
             meta={`${totalStars} stars`}
@@ -221,7 +222,7 @@ async function DashboardContent() {
           </div>
         </div>
 
-        <div className="yev-card flex h-[340px] flex-col overflow-hidden">
+        <div className="yev-card yev-card-hover flex h-[340px] flex-col overflow-hidden">
           <PanelHeader title="Open PR pipeline" meta={`${openPRs.length} open`} href="/repos" />
           <div className="yev-scroll-panel min-h-0 flex-1 divide-y divide-neutral-200">
             {latestPRs.length > 0 ? (
@@ -257,7 +258,7 @@ async function DashboardContent() {
           </div>
         </div>
 
-        <div className="yev-card flex h-[340px] flex-col overflow-hidden">
+        <div className="yev-card yev-card-hover flex h-[340px] flex-col overflow-hidden">
           <PanelHeader title="Latest notes" meta={`${noteCount} notes`} href="/notes" />
           <div className="yev-scroll-panel min-h-0 flex-1 divide-y divide-neutral-200">
             {recentNotes.length > 0 ? (
@@ -295,7 +296,7 @@ async function DashboardContent() {
           </div>
         </div>
 
-        <div className="yev-card flex h-[340px] flex-col p-5">
+        <div className="yev-card yev-card-hover flex h-[340px] flex-col p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold text-neutral-950">At a glance</p>
@@ -312,7 +313,7 @@ async function DashboardContent() {
           </div>
         </div>
       </section>
-    </div>
+    </AnimatedGroup>
   );
 }
 
@@ -351,7 +352,7 @@ function SummaryCard({
   isActive?: boolean;
 }) {
   return (
-    <div className={cn("yev-card p-4", isActive && "yev-active-metric")}>
+    <div className={cn("yev-card yev-card-hover p-4", isActive && "yev-active-metric")}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-neutral-600">{title}</p>
         <span

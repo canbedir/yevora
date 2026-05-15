@@ -1,7 +1,8 @@
 "use client";
 
 import { Children, type ReactNode } from "react";
-import { motion, type Variants } from "motion/react";
+import { usePathname } from "next/navigation";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -52,9 +53,13 @@ export function AnimatedGroup({
   delay = 0,
   stagger = 0.08,
 }: AnimatedGroupProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const pathname = usePathname();
+
   return (
     <motion.div
-      initial="hidden"
+      key={pathname}
+      initial={prefersReducedMotion ? false : "hidden"}
       animate="visible"
       variants={{
         hidden: {},

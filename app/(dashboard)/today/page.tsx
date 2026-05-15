@@ -18,6 +18,7 @@ import {
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { QueueSignalList } from "@/components/dashboard/QueueSignalList";
+import { AnimatedGroup } from "@/components/motion-primitives/AnimatedGroup";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { authOptions } from "@/lib/auth";
@@ -43,7 +44,7 @@ export default async function TodayPage() {
   const displayName = session.user.name?.split(" ")[0] ?? "Developer";
 
   return (
-    <div className="mx-auto max-w-[960px] space-y-6">
+    <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
         title={`Today, ${displayName}`}
         description="A focused queue for what deserves attention before the day gets noisy."
@@ -81,7 +82,7 @@ export default async function TodayPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="yev-card overflow-hidden">
+        <div className="yev-card yev-card-hover overflow-hidden">
           <div className="flex items-start justify-between gap-4 border-b border-neutral-200 px-5 py-4">
             <div>
               <h2 className="text-sm font-semibold text-neutral-950">Today queue</h2>
@@ -106,7 +107,7 @@ export default async function TodayPage() {
         </div>
 
         <aside className="space-y-4">
-          <section className="yev-card p-5">
+          <section className="yev-card yev-card-hover p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold text-neutral-950">Next focus</h2>
@@ -136,7 +137,7 @@ export default async function TodayPage() {
             </Link>
           </section>
 
-          <section className="yev-card p-5">
+          <section className="yev-card yev-card-hover p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold text-neutral-950">Context</h2>
@@ -219,7 +220,7 @@ export default async function TodayPage() {
           )}
         </Panel>
       </section>
-    </div>
+    </AnimatedGroup>
   );
 }
 
@@ -237,7 +238,7 @@ function TodayMetric({
   active?: boolean;
 }) {
   return (
-    <div className={cn("yev-card p-4", active && "yev-active-metric")}>
+    <div className={cn("yev-card yev-card-hover p-4", active && "yev-active-metric")}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-neutral-600">{label}</p>
         <span
@@ -291,7 +292,7 @@ function Panel({
   children: ReactNode;
 }) {
   return (
-    <section className="yev-card overflow-hidden">
+    <section className="yev-card yev-card-hover overflow-hidden">
       <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-4">
         <h2 className="text-sm font-semibold text-neutral-950">{title}</h2>
         <Link href={href} className="text-xs text-neutral-600 transition-colors hover:text-neutral-950">

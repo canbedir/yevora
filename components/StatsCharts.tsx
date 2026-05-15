@@ -215,7 +215,7 @@ function StatCard({
   isActive?: boolean;
 }) {
   return (
-    <div className={cn("yev-card p-4", isActive && "yev-active-metric")}>
+    <div className={cn("yev-card yev-card-hover p-4", isActive && "yev-active-metric")}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-neutral-600">{title}</p>
         <span
@@ -243,7 +243,7 @@ function ChartPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="yev-card overflow-hidden">
+    <section className="yev-card yev-card-hover overflow-hidden">
       <div className="flex items-start justify-between gap-4 border-b border-neutral-200 px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold text-neutral-950">{title}</h2>
