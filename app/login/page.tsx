@@ -12,6 +12,12 @@ import { authOptions } from "@/lib/auth";
 
 export const unstable_instant = false;
 
+interface LoginPageProps {
+  searchParams: Promise<{
+    error?: string | string[];
+  }>;
+}
+
 const highlights = [
   {
     icon: FolderGit2,
@@ -35,8 +41,12 @@ const highlights = [
   },
 ];
 
-export default async function Page() {
+export default async function Page({ searchParams }: LoginPageProps) {
   const session = await getServerSession(authOptions);
+  const resolvedSearchParams = await searchParams;
+  const error = Array.isArray(resolvedSearchParams.error)
+    ? resolvedSearchParams.error[0]
+    : resolvedSearchParams.error;
 
   if (session) {
     redirect("/today");
@@ -81,7 +91,7 @@ export default async function Page() {
         </section>
 
         <section className="flex justify-center lg:justify-end">
-          <LoginPanel />
+          <LoginPanel error={error ?? null} />
         </section>
       </div>
     </div>

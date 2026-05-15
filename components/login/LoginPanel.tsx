@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { ArrowUpRight, Clock3, ShieldCheck, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowUpRight, Clock3, ShieldCheck, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -51,8 +51,38 @@ const firstMinuteItems = [
   "Land with context already arranged",
 ];
 
-export function LoginPanel() {
+const authErrorCopy: Record<string, { title: string; description: string }> = {
+  OAuthAccountNotLinked: {
+    title: "That GitHub email is already tied to an older account record.",
+    description:
+      "Retry after clearing the old account link, or sign in with the method that created the original account first.",
+  },
+  OAuthCallback: {
+    title: "GitHub sign in did not finish cleanly.",
+    description:
+      "Please retry in a fresh tab. If it keeps happening, the OAuth app or deployment settings may need another pass.",
+  },
+  Callback: {
+    title: "The sign in callback could not complete.",
+    description: "Retry once more. If the same error comes back, the auth configuration likely needs attention.",
+  },
+  AccessDenied: {
+    title: "This sign in was denied before the session could open.",
+    description: "Retry with the same GitHub account, and make sure the OAuth permissions were accepted.",
+  },
+  default: {
+    title: "Sign in hit an unexpected bump.",
+    description: "Please retry once. If the same error returns, there is probably an auth setting we should inspect.",
+  },
+};
+
+interface LoginPanelProps {
+  error?: string | null;
+}
+
+export function LoginPanel({ error }: LoginPanelProps) {
   const [isPending, startTransition] = useTransition();
+  const errorCopy = error ? authErrorCopy[error] ?? authErrorCopy.default : null;
 
   return (
     <div className="w-full max-w-[430px]">
@@ -112,6 +142,24 @@ export function LoginPanel() {
             ))}
           </div>
         </div>
+
+        {errorCopy ? (
+          <div className="mt-6 rounded-[1.2rem] border border-[#efcfac] bg-[#fff4e7] px-4 py-3.5">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#fde6cb] text-[#c77d12]">
+                <AlertCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-[0.92rem] font-semibold tracking-[-0.02em] text-[#181411]">
+                  {errorCopy.title}
+                </p>
+                <p className="mt-1.5 text-[0.88rem] leading-6 text-[#6d6254]">
+                  {errorCopy.description}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <Button
           className="mt-6 h-12 w-full rounded-[1rem] border-[#b97713] bg-[#ca8618] text-[0.96rem] font-semibold text-[#fff8ef] shadow-none hover:bg-[#c07f15]"

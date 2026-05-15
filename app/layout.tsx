@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/opengraph-image",
+        url: "/yevora-social-card.png",
         width: 1200,
         height: 630,
         alt: "Yevora workspace overview card",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Yevora",
     description: siteDescription,
-    images: ["/twitter-image"],
+    images: ["/yevora-social-card.png"],
   },
 };
 

@@ -10,12 +10,20 @@ export async function proxy(req: NextRequest) {
   }
 
   if (token && isAuthPage) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/today", req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/repos/:path*", "/notes/:path*", "/stats/:path*", "/login"],
+  matcher: [
+    "/dashboard/:path*",
+    "/today/:path*",
+    "/focus/:path*",
+    "/repos/:path*",
+    "/notes/:path*",
+    "/stats/:path*",
+    "/login",
+  ],
 };

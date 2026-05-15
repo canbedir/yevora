@@ -1,13 +1,11 @@
-import { ImageResponse } from "next/og";
-
-import { OG_IMAGE_ALT, OG_IMAGE_CONTENT_TYPE, OG_IMAGE_SIZE, YevoraOgCard } from "@/app/og-card";
-
-export const alt = OG_IMAGE_ALT;
-export const size = OG_IMAGE_SIZE;
-export const contentType = OG_IMAGE_CONTENT_TYPE;
+export const alt = "Yevora workspace overview card";
+export const size = {
+  width: 1200,
+  height: 630,
+};
+export const contentType = "image/png";
 
 export default function OpenGraphImage() {
-  return new ImageResponse(<YevoraOgCard />, {
-    ...size,
-  });
+  const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  return Response.redirect(new URL("/yevora-social-card.png", siteUrl));
 }
