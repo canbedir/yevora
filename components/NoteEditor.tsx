@@ -118,11 +118,11 @@ export function NoteEditor({ note }: NoteEditorProps) {
   const statusLabel = getStatusLabel(saveStatus, savedAt);
 
   return (
-    <div className="flex h-full flex-col bg-white">
-      <div className="border-b border-neutral-200 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,247,241,0.86))]">
+      <div className="border-b border-neutral-200 bg-white/82 p-4 backdrop-blur">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-neutral-600">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-neutral-200/80 bg-white text-neutral-600 shadow-[0_10px_22px_-18px_rgba(15,23,42,0.34)]">
               <FileText className="h-4 w-4" />
             </span>
             <Input
@@ -135,7 +135,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
               className="h-10 flex-1 rounded-md border-transparent bg-neutral-50 px-3 text-base font-semibold focus-visible:border-neutral-200"
             />
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:justify-end">
             <div className="hidden rounded-md border border-neutral-200 bg-neutral-50 p-0.5 sm:flex">
               <ModeButton active={mode === "write"} onClick={() => setMode("write")}>
                 <Pencil className="h-3.5 w-3.5" />
@@ -166,9 +166,21 @@ export function NoteEditor({ note }: NoteEditorProps) {
             Preview
           </ModeButton>
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-neutral-500">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-medium text-primary">
+            <CircleDot className="h-3 w-3" />
+            Autosave
+          </span>
+          <span className="inline-flex rounded-full border border-neutral-200 bg-white px-2.5 py-1">
+            {wordCount} words
+          </span>
+          <span className="inline-flex rounded-full border border-neutral-200 bg-white px-2.5 py-1">
+            {mode === "write" ? "Editor mode" : "Preview mode"}
+          </span>
+        </div>
       </div>
 
-      <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,#fff,#fafafa)] p-4">
+      <div className="min-h-0 flex-1 p-3 sm:p-4">
         {mode === "write" ? (
           <textarea
             value={content}
@@ -177,10 +189,10 @@ export function NoteEditor({ note }: NoteEditorProps) {
               markDirty();
             }}
             placeholder="Write a note..."
-            className="h-full min-h-[420px] w-full resize-none rounded-lg border border-neutral-200 bg-white px-4 py-4 text-sm leading-7 text-neutral-800 outline-none transition-colors placeholder:text-neutral-400 focus:border-primary/50 focus:ring-3 focus:ring-primary/15"
+            className="h-full min-h-[360px] w-full resize-none rounded-[1rem] border border-neutral-200 bg-white px-4 py-4 text-sm leading-7 text-neutral-800 shadow-[0_20px_46px_-40px_rgba(15,23,42,0.32)] outline-none transition-colors placeholder:text-neutral-400 focus:border-primary/50 focus:ring-3 focus:ring-primary/15 sm:min-h-[420px]"
           />
         ) : (
-          <div data-color-mode="light" className="h-full min-h-[420px] overflow-y-auto rounded-lg border border-neutral-200 bg-white px-5 py-5">
+          <div data-color-mode="light" className="h-full min-h-[360px] overflow-y-auto rounded-[1rem] border border-neutral-200 bg-white px-4 py-4 shadow-[0_20px_46px_-40px_rgba(15,23,42,0.32)] sm:min-h-[420px] sm:px-5 sm:py-5">
             {content.trim() ? (
               <MDEditor.Markdown
                 source={content}
@@ -200,8 +212,8 @@ export function NoteEditor({ note }: NoteEditorProps) {
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-3 text-xs text-neutral-500">
-        <span className="inline-flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 bg-white/82 px-4 py-3 text-xs text-neutral-500">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2.5 py-1">
           {saveStatus === "saving" ? (
             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
           ) : saveStatus === "saved" ? (
@@ -213,7 +225,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
           ) : null}
           {statusLabel}
         </span>
-        <span>{wordCount} words</span>
+        <span className="rounded-full border border-neutral-200 bg-white px-2.5 py-1">Markdown workspace</span>
       </div>
     </div>
   );

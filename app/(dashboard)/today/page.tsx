@@ -46,8 +46,22 @@ export default async function TodayPage() {
   return (
     <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
+        eyebrow="Daily queue"
         title={`Today, ${displayName}`}
         description="A focused queue for what deserves attention before the day gets noisy."
+        meta={
+          <>
+            <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-primary">
+              {summary.queueItems.length} queued signals
+            </span>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              {summary.commitStreak} day streak
+            </span>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              {formatMinutes(summary.focusMinutesThisWeek)} this week
+            </span>
+          </>
+        }
       />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -57,6 +71,7 @@ export default async function TodayPage() {
           detail={`${formatMinutes(summary.focusMinutesToday)} logged`}
           icon={Timer}
           active={summary.focusToday > 0}
+          featured
         />
         <TodayMetric
           label="Commits today"
@@ -107,7 +122,7 @@ export default async function TodayPage() {
         </div>
 
         <aside className="space-y-4">
-          <section className="yev-card yev-card-hover p-5">
+          <section className="yev-card yev-card-hover overflow-hidden border-primary/15 bg-[linear-gradient(180deg,rgba(255,247,237,0.88),rgba(255,255,255,0.98))] p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold text-neutral-950">Next focus</h2>
@@ -115,8 +130,16 @@ export default async function TodayPage() {
               </div>
               <Clock3 className="h-4 w-4 text-primary" />
             </div>
-            <div className="mt-4 rounded-md border border-orange-200 bg-orange-50/70 px-3 py-3">
-              <p className="text-xs font-medium text-orange-700">
+            <div className="mt-4 rounded-lg border border-orange-200 bg-white/75 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-orange-700">
+                  Focus cue
+                </p>
+                <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-[11px] font-medium text-orange-700">
+                  {summary.focusToday > 0 ? "Momentum on" : "Ready to start"}
+                </span>
+              </div>
+              <p className="mt-3 text-xs font-medium text-orange-700">
                 {summary.focusToday > 0 ? "Keep momentum" : "First block"}
               </p>
               <p className="mt-1 text-sm font-semibold text-neutral-950">
@@ -230,15 +253,23 @@ function TodayMetric({
   detail,
   icon: Icon,
   active = false,
+  featured = false,
 }: {
   label: string;
   value: string;
   detail: string;
   icon: LucideIcon;
   active?: boolean;
+  featured?: boolean;
 }) {
   return (
-    <div className={cn("yev-card yev-card-hover p-4", active && "yev-active-metric")}>
+    <div
+      className={cn(
+        "yev-card yev-card-hover p-4",
+        active && "yev-active-metric",
+        featured && "border-primary/15 bg-[linear-gradient(180deg,rgba(255,247,237,0.82),rgba(255,255,255,0.98))]"
+      )}
+    >
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-neutral-600">{label}</p>
         <span
@@ -250,8 +281,15 @@ function TodayMetric({
           <Icon className={cn("h-4 w-4", label === "Commits today" && active && "yev-live-flame")} />
         </span>
       </div>
-      <p className="mt-4 text-2xl font-semibold text-neutral-950">{value}</p>
+      <p className={cn("mt-4 font-semibold text-neutral-950", featured ? "text-3xl sm:text-[2rem]" : "text-2xl")}>
+        {value}
+      </p>
       <p className="mt-1 text-xs text-neutral-500">{detail}</p>
+      {featured ? (
+        <div className="mt-4 inline-flex rounded-full border border-orange-200 bg-white/80 px-2.5 py-1 text-[11px] font-medium text-orange-700">
+          Daily anchor
+        </div>
+      ) : null}
     </div>
   );
 }

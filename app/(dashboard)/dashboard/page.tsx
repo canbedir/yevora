@@ -134,8 +134,22 @@ async function DashboardContent() {
   return (
     <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
+        eyebrow="Overview"
         title={`Welcome back, ${displayName}`}
         description="A calmer overview of your repositories, notes, focus time, and shipping rhythm."
+        meta={
+          <>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              {weeklyCommits} commits this week
+            </span>
+            <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-primary">
+              {formatMinutes(focusMinutesThisWeek)} focused
+            </span>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              {noteCount} notes in reach
+            </span>
+          </>
+        }
       />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

@@ -93,6 +93,16 @@ function formatTime(totalSeconds: number) {
   return `${minutes}:${seconds}`;
 }
 
+function getTimerTextClassName(totalSeconds: number) {
+  const minuteDigits = Math.floor(totalSeconds / 60).toString().length;
+
+  if (minuteDigits >= 3) {
+    return "text-[clamp(2.25rem,6.4vw,3.35rem)]";
+  }
+
+  return "text-[clamp(2.7rem,6.8vw,3.9rem)]";
+}
+
 function playBeep(audioContextRef: { current: AudioContext | null }) {
   try {
     if (!audioContextRef.current) {
@@ -394,19 +404,67 @@ export function FocusConsole() {
                 {getTimerStatus()}
               </motion.p>
             </AnimatePresence>
-            <AnimatePresence initial={false} mode="wait">
-              <motion.p
-                key={timerMode}
-                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.985 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.015 }}
-                transition={panelTransition}
-                className="mt-3 text-7xl font-semibold tabular-nums text-neutral-950"
-              >
-                {formatTime(timeLeft)}
-              </motion.p>
-            </AnimatePresence>
-            <div className="mx-auto mt-6 max-w-md">
+            <div className="relative mx-auto mt-4 flex h-[12.75rem] w-full max-w-[18rem] items-center justify-center sm:h-[13.5rem] sm:max-w-[18.5rem] lg:h-[14rem] lg:max-w-[19rem]">
+              <motion.div
+                aria-hidden="true"
+                className={cn(
+                  "absolute inset-0 rounded-full border shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+                  timerMode === "break"
+                    ? "border-emerald-200/80 bg-[radial-gradient(circle_at_center,rgba(236,253,245,0.98),rgba(209,250,229,0.38)_56%,rgba(255,255,255,0)_72%)]"
+                    : "border-orange-200/80 bg-[radial-gradient(circle_at_center,rgba(255,247,237,0.98),rgba(254,215,170,0.34)_56%,rgba(255,255,255,0)_72%)]"
+                )}
+                animate={
+                  prefersReducedMotion
+                    ? undefined
+                    : timerMode === "break"
+                      ? { scale: [1, 1.012, 1], opacity: [0.92, 1, 0.92] }
+                      : isRunning
+                        ? { scale: [1, 1.02, 1], opacity: [0.94, 1, 0.94] }
+                        : { scale: 1, opacity: 0.96 }
+                }
+                transition={prefersReducedMotion ? undefined : { duration: 4.4, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {!prefersReducedMotion ? (
+                <motion.div
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute inset-[8%] rounded-full border border-white/70",
+                    timerMode === "break"
+                      ? "bg-[conic-gradient(from_180deg,rgba(16,185,129,0.18),rgba(16,185,129,0.04),rgba(255,255,255,0),rgba(16,185,129,0.14))]"
+                      : "bg-[conic-gradient(from_180deg,rgba(234,88,12,0.2),rgba(251,191,36,0.06),rgba(255,255,255,0),rgba(234,88,12,0.14))]"
+                  )}
+                  animate={isRunning ? { rotate: 360 } : { rotate: 0 }}
+                  transition={isRunning ? { duration: timerMode === "break" ? 18 : 14, repeat: Infinity, ease: "linear" } : undefined}
+                />
+              ) : null}
+              <div className="relative flex h-[10.5rem] w-[10.5rem] items-center justify-center rounded-full border border-white/80 bg-white/92 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.34)] sm:h-[11rem] sm:w-[11rem] lg:h-[12.6rem] lg:w-[12.6rem]">
+                <div
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute inset-[6%] rounded-full",
+                    timerMode === "break"
+                      ? "bg-[radial-gradient(circle_at_top,rgba(236,253,245,0.92),rgba(255,255,255,0.84)_68%)]"
+                      : "bg-[radial-gradient(circle_at_top,rgba(255,247,237,0.92),rgba(255,255,255,0.84)_68%)]"
+                  )}
+                />
+                <AnimatePresence initial={false} mode="wait">
+                  <motion.p
+                    key={timerMode}
+                    initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.985 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.015 }}
+                    transition={panelTransition}
+                    className={cn(
+                      "relative z-10 max-w-full px-4 text-center font-semibold leading-none tabular-nums tracking-[-0.045em] text-neutral-950",
+                      getTimerTextClassName(timeLeft)
+                    )}
+                  >
+                    {formatTime(timeLeft)}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+            </div>
+            <div className="mx-auto mt-5 max-w-md">
               <Progress value={progress} className="h-2 bg-orange-100" />
               <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
                 <span>{Math.round(progress)}%</span>
@@ -449,7 +507,7 @@ export function FocusConsole() {
             </label>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 rounded-xl border border-neutral-200 bg-neutral-50/80 p-2 sm:grid-cols-2 sm:gap-3 sm:p-3 xl:grid-cols-4">
             {FOCUS_PRESETS.map((preset) => (
               <button
                 key={preset}
@@ -457,9 +515,9 @@ export function FocusConsole() {
                 onClick={() => changeFocusMinutes(preset)}
                 disabled={isRunning || timerMode === "break"}
                 className={cn(
-                  "h-10 rounded-md border text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                  "flex h-11 items-center justify-center rounded-lg border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                   focusMinutes === preset
-                    ? "border-primary bg-orange-100 text-primary"
+                    ? "border-primary bg-orange-100 text-primary shadow-[0_12px_22px_-18px_rgba(234,88,12,0.32)]"
                     : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40 hover:text-primary"
                 )}
               >
@@ -468,11 +526,11 @@ export function FocusConsole() {
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_132px]">
             <Button
               onClick={toggleTimer}
               disabled={(timerMode === "focus" && timeLeft === 0) || isSaving || isAwaitingWrapUp}
-              className="h-10 flex-1"
+              className="h-11 w-full justify-center rounded-lg text-sm"
               variant={isRunning ? "secondary" : "default"}
             >
               {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -484,7 +542,7 @@ export function FocusConsole() {
                     ? "Start break"
                     : "Start focus"}
             </Button>
-            <Button onClick={resetTimer} variant="outline" className="h-10 sm:w-32">
+            <Button onClick={resetTimer} variant="outline" className="h-11 w-full justify-center rounded-lg text-sm">
               <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
@@ -500,36 +558,36 @@ export function FocusConsole() {
                 transition={panelTransition}
                 className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4"
               >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-neutral-950">
-                    {hasCompletedBreak || timeLeft === 0 ? "Break complete" : "Break time"}
-                  </h3>
-                  <p className="mt-1 text-sm text-neutral-600">
-                    {hasCompletedBreak || timeLeft === 0
-                      ? "Your next focus block is ready when you are."
-                      : "Step away for a moment. The next focus block can start fresh after this."}
-                  </p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-neutral-950">
+                      {hasCompletedBreak || timeLeft === 0 ? "Break complete" : "Break time"}
+                    </h3>
+                    <p className="mt-1 text-sm text-neutral-600">
+                      {hasCompletedBreak || timeLeft === 0
+                        ? "Your next focus block is ready when you are."
+                        : "Step away for a moment. The next focus block can start fresh after this."}
+                    </p>
+                  </div>
+                  <TimerReset className="h-4 w-4 shrink-0 text-emerald-700" />
                 </div>
-                <TimerReset className="h-4 w-4 shrink-0 text-emerald-700" />
-              </div>
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  onClick={() => prepareNextFocus({ start: true })}
-                  disabled={isRunning && !hasCompletedBreak}
-                  className="h-10 flex-1"
-                >
-                  <Play className="h-4 w-4" />
-                  Start next focus
-                </Button>
-                <Button
-                  onClick={() => prepareNextFocus()}
-                  variant="outline"
-                  className="h-10 sm:w-36"
-                >
-                  Skip break
-                </Button>
-              </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_144px]">
+                  <Button
+                    onClick={() => prepareNextFocus({ start: true })}
+                    disabled={isRunning && !hasCompletedBreak}
+                    className="h-11 w-full justify-center rounded-lg text-sm"
+                  >
+                    <Play className="h-4 w-4" />
+                    Start next focus
+                  </Button>
+                  <Button
+                    onClick={() => prepareNextFocus()}
+                    variant="outline"
+                    className="h-11 w-full justify-center rounded-lg text-sm"
+                  >
+                    Skip break
+                  </Button>
+                </div>
               </motion.div>
             ) : isAwaitingWrapUp ? (
               <motion.div
@@ -540,74 +598,74 @@ export function FocusConsole() {
                 transition={panelTransition}
                 className="rounded-lg border border-primary/20 bg-orange-50/60 p-4"
               >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-neutral-950">Session output</h3>
-                  <p className="mt-1 text-sm text-neutral-600">
-                    Capture what changed before this focus block disappears into a number.
-                  </p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-neutral-950">Session output</h3>
+                    <p className="mt-1 text-sm text-neutral-600">
+                      Capture what changed before this focus block disappears into a number.
+                    </p>
+                  </div>
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
                 </div>
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
-              </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_120px]">
-                <label className="space-y-2">
-                  <span className="text-xs font-medium text-neutral-600">Repository</span>
-                  <Input
-                    value={repositoryName}
-                    onChange={(event) => setRepositoryName(event.target.value)}
-                    placeholder="owner/repo"
-                    className="h-9 rounded-md border-neutral-200 bg-white"
+                <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_120px]">
+                  <label className="space-y-2">
+                    <span className="text-xs font-medium text-neutral-600">Repository</span>
+                    <Input
+                      value={repositoryName}
+                      onChange={(event) => setRepositoryName(event.target.value)}
+                      placeholder="owner/repo"
+                      className="h-9 rounded-md border-neutral-200 bg-white"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-medium text-neutral-600">Repository URL</span>
+                    <Input
+                      value={repositoryUrl}
+                      onChange={(event) => setRepositoryUrl(event.target.value)}
+                      placeholder="https://github.com/..."
+                      className="h-9 rounded-md border-neutral-200 bg-white"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-xs font-medium text-neutral-600">Commits</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={999}
+                      value={commitCount}
+                      onChange={(event) => setCommitCount(normalizeCommitCount(event.target.value))}
+                      className="h-9 rounded-md border-neutral-200 bg-white"
+                    />
+                  </label>
+                </div>
+
+                <label className="mt-3 block space-y-2">
+                  <span className="text-xs font-medium text-neutral-600">Output summary</span>
+                  <textarea
+                    value={outputSummary}
+                    onChange={(event) => setOutputSummary(event.target.value)}
+                    placeholder="What shipped, improved, or became clearer?"
+                    className="min-h-24 w-full resize-none rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm leading-6 text-neutral-800 outline-none transition-colors placeholder:text-neutral-400 focus:border-primary/50 focus:ring-3 focus:ring-primary/15"
                   />
                 </label>
-                <label className="space-y-2">
-                  <span className="text-xs font-medium text-neutral-600">Repository URL</span>
-                  <Input
-                    value={repositoryUrl}
-                    onChange={(event) => setRepositoryUrl(event.target.value)}
-                    placeholder="https://github.com/..."
-                    className="h-9 rounded-md border-neutral-200 bg-white"
-                  />
-                </label>
-                <label className="space-y-2">
-                  <span className="text-xs font-medium text-neutral-600">Commits</span>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={999}
-                    value={commitCount}
-                    onChange={(event) => setCommitCount(normalizeCommitCount(event.target.value))}
-                    className="h-9 rounded-md border-neutral-200 bg-white"
-                  />
-                </label>
-              </div>
 
-              <label className="mt-3 block space-y-2">
-                <span className="text-xs font-medium text-neutral-600">Output summary</span>
-                <textarea
-                  value={outputSummary}
-                  onChange={(event) => setOutputSummary(event.target.value)}
-                  placeholder="What shipped, improved, or became clearer?"
-                  className="min-h-24 w-full resize-none rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm leading-6 text-neutral-800 outline-none transition-colors placeholder:text-neutral-400 focus:border-primary/50 focus:ring-3 focus:ring-primary/15"
-                />
-              </label>
+                {saveError ? <p className="mt-3 text-sm text-destructive">{saveError}</p> : null}
 
-              {saveError ? <p className="mt-3 text-sm text-destructive">{saveError}</p> : null}
-
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                <Button onClick={() => void completeSession()} disabled={isSaving} className="h-10 flex-1">
-                  <CheckCircle2 className="h-4 w-4" />
-                  {isSaving ? "Saving session..." : "Save session output"}
-                </Button>
-                <Button
-                  onClick={() => void completeSession({ includeOutput: false })}
-                  variant="outline"
-                  disabled={isSaving}
-                  className="h-10 sm:w-44"
-                >
-                  Save without output
-                </Button>
-              </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_176px]">
+                  <Button onClick={() => void completeSession()} disabled={isSaving} className="h-11 w-full justify-center rounded-lg text-sm">
+                    <CheckCircle2 className="h-4 w-4" />
+                    {isSaving ? "Saving session..." : "Save session output"}
+                  </Button>
+                  <Button
+                    onClick={() => void completeSession({ includeOutput: false })}
+                    variant="outline"
+                    disabled={isSaving}
+                    className="h-11 w-full justify-center rounded-lg text-sm"
+                  >
+                    Save without output
+                  </Button>
+                </div>
               </motion.div>
             ) : null}
           </AnimatePresence>

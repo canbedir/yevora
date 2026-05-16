@@ -19,8 +19,19 @@ export default async function StatsPage() {
   return (
     <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
+        eyebrow="Momentum"
         title="Stats"
         description="Read your commit and focus trends without the dashboard noise."
+        meta={
+          <>
+            <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-primary">
+              Weekly commit and focus rhythm
+            </span>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              Last 30 days of sessions
+            </span>
+          </>
+        }
       />
       <Suspense fallback={<StatsContentSkeleton />}>
         <StatsContent />

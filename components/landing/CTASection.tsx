@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, GitBranch, TimerReset } from "lucide-react";
 
+import { SmartSignInLink } from "@/components/auth/SmartSignInLink";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -14,11 +15,10 @@ const ctaSignals = [
 ];
 
 export function CTASection({ isAuthenticated }: CTASectionProps) {
-  const href = isAuthenticated ? "/today" : "/login";
   const label = isAuthenticated ? "Open today" : "Connect GitHub";
 
   return (
-    <section id="workflow" data-landing-section className="relative overflow-hidden border-t border-border/70 py-24">
+    <section id="workflow" data-landing-section className="relative overflow-hidden border-t border-border/70 py-18 sm:py-20 md:py-24">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(236,170,58,0.12),transparent_35%),linear-gradient(180deg,rgba(252,249,244,0.8),rgba(255,255,255,1))]" />
       <div
         data-landing-parallax
@@ -31,17 +31,17 @@ export function CTASection({ isAuthenticated }: CTASectionProps) {
       <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
         <div
           data-landing-item="section"
-          className="landing-panel overflow-hidden rounded-[2.5rem] border border-border/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(245,240,231,0.92))] p-8 shadow-[0_36px_120px_-70px_rgba(15,23,42,0.6)] md:p-10"
+          className="landing-panel overflow-hidden rounded-[1.65rem] border border-border/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(245,240,231,0.92))] p-5 shadow-[0_36px_120px_-70px_rgba(15,23,42,0.6)] sm:rounded-[2rem] sm:p-7 md:rounded-[2.5rem] md:p-10"
         >
           <Badge variant="outline" className="rounded-full border-primary/20 bg-background/80 px-3 py-1 text-muted-foreground">
             Your calm command center
           </Badge>
-          <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_22rem] lg:items-end">
+          <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-end lg:gap-10">
             <div className="max-w-3xl">
-              <h2 className="text-4xl font-bold tracking-tight md:text-5xl">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
                 Less tab switching, more visible progress.
               </h2>
-              <p className="mt-5 text-lg leading-8 text-muted-foreground">
+              <p className="mt-4 text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
                 Sign in once and let the dashboard hold the context: what you are building,
                 what is waiting for review, how focused you were, and what deserves attention next.
               </p>
@@ -63,7 +63,7 @@ export function CTASection({ isAuthenticated }: CTASectionProps) {
                   <div
                     key={item.label}
                     data-landing-item="group"
-                    className="landing-panel rounded-[1.45rem] border border-white/80 bg-white/72 px-4 py-4 shadow-[0_22px_58px_-40px_rgba(15,23,42,0.32)]"
+                    className="landing-panel rounded-[1.1rem] border border-white/80 bg-white/72 px-4 py-4 shadow-[0_22px_58px_-40px_rgba(15,23,42,0.32)] sm:rounded-[1.45rem]"
                   >
                     <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                       {item.label}
@@ -78,12 +78,19 @@ export function CTASection({ isAuthenticated }: CTASectionProps) {
               <Button
                 asChild
                 size="lg"
-                className="landing-button h-13 w-full rounded-full px-7"
+                className="landing-button h-12 w-full rounded-full px-7 sm:h-13"
               >
-                <Link href={href}>
-                  {label}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                {isAuthenticated ? (
+                  <Link href="/today">
+                    {label}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                ) : (
+                  <SmartSignInLink>
+                    {label}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </SmartSignInLink>
+                )}
               </Button>
             </div>
           </div>

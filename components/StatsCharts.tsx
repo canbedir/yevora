@@ -251,7 +251,7 @@ function ChartPanel({
         </div>
         <GitCommitHorizontal className="h-4 w-4 shrink-0 text-primary" />
       </div>
-      <div className="h-[240px] px-4 py-5">{children}</div>
+      <div className="h-[220px] px-3 py-4 sm:h-[240px] sm:px-4 sm:py-5">{children}</div>
     </section>
   );
 }

@@ -9,6 +9,7 @@ import {
   TimerReset,
 } from "lucide-react";
 
+import { SmartSignInLink } from "@/components/auth/SmartSignInLink";
 import { YevoraLogo } from "@/components/brand/YevoraLogo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -131,12 +132,8 @@ export default function NotFound() {
                 {routeSuggestions.map((item) => {
                   const Icon = item.icon;
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="landing-panel flex items-start gap-4 rounded-[1.35rem] border border-white/80 bg-background/82 px-4 py-4 shadow-[0_16px_44px_-34px_rgba(15,23,42,0.28)]"
-                    >
+                  const content = (
+                    <>
                       <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.95rem] bg-primary/10 text-primary">
                         <Icon className="h-4 w-4" />
                       </div>
@@ -151,6 +148,27 @@ export default function NotFound() {
                           {item.description}
                         </p>
                       </div>
+                    </>
+                  );
+
+                  if (item.href === "/login") {
+                    return (
+                      <SmartSignInLink
+                        key={item.href}
+                        className="landing-panel flex items-start gap-4 rounded-[1.35rem] border border-white/80 bg-background/82 px-4 py-4 shadow-[0_16px_44px_-34px_rgba(15,23,42,0.28)]"
+                      >
+                        {content}
+                      </SmartSignInLink>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="landing-panel flex items-start gap-4 rounded-[1.35rem] border border-white/80 bg-background/82 px-4 py-4 shadow-[0_16px_44px_-34px_rgba(15,23,42,0.28)]"
+                    >
+                      {content}
                     </Link>
                   );
                 })}

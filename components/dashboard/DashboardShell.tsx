@@ -30,7 +30,7 @@ import { CommandPalette } from "@/components/dashboard/CommandPalette";
 import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
 import { useTodayQueue } from "@/components/dashboard/useTodayQueue";
 import { AnimatedBackground } from "@/components/motion-primitives/AnimatedBackground";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
@@ -212,6 +212,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { items, count, isLoading, hasError, refresh } = useTodayQueue();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
     <div className="yev-shell min-h-screen bg-neutral-50 text-neutral-950">
@@ -223,7 +224,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <header className="sticky top-0 z-20 flex h-12 items-center justify-between border-b border-neutral-200 bg-neutral-50/95 px-4 backdrop-blur lg:px-5">
           <div className="flex min-w-0 items-center gap-3">
             <div className="lg:hidden">
-              <Sheet>
+              <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
                     <Menu className="h-4 w-4" />
@@ -231,7 +232,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[184px] border-r border-neutral-200 p-0">
-                  <SidebarContent pathname={pathname} todayCount={count} />
+                  <SheetTitle className="sr-only">Navigation</SheetTitle>
+                  <SidebarContent pathname={pathname} todayCount={count} onNavigate={() => setIsMobileNavOpen(false)} />
                 </SheetContent>
               </Sheet>
             </div>

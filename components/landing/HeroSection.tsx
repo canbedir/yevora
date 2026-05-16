@@ -10,6 +10,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SmartSignInLink } from "@/components/auth/SmartSignInLink";
 import { cn } from "@/lib/utils";
 
 const cadence = [36, 58, 44, 72, 65, 80, 90];
@@ -45,11 +46,10 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ isAuthenticated }: HeroSectionProps) {
-  const ctaHref = isAuthenticated ? "/today" : "/login";
   const ctaLabel = isAuthenticated ? "Open Today" : "Start with GitHub";
 
   return (
-    <section data-landing-hero className="relative overflow-hidden pb-28 pt-16 md:pb-36 md:pt-20">
+    <section data-landing-hero className="relative overflow-hidden pb-20 pt-12 sm:pb-24 sm:pt-14 md:pb-36 md:pt-20">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(236,170,58,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(32,174,210,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.88),rgba(253,249,241,0.96)_54%,rgba(255,255,255,1))]" />
       <div
         data-landing-parallax
@@ -70,12 +70,12 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
           <Badge
             data-hero-reveal
             variant="outline"
-            className="mb-7 h-auto rounded-full border-white/80 bg-background/88 px-4 py-1.5 text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground shadow-[0_20px_44px_-30px_rgba(15,23,42,0.34)]"
+            className="mb-6 h-auto rounded-full border-white/80 bg-background/88 px-3 py-1.5 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground shadow-[0_20px_44px_-30px_rgba(15,23,42,0.34)] sm:mb-7 sm:px-4 sm:text-[0.72rem]"
           >
             GitHub + Pomodoro + Notes + Streaks
           </Badge>
 
-          <div data-hero-reveal className="mb-8 flex flex-wrap justify-center gap-2">
+          <div data-hero-reveal className="mb-7 flex flex-wrap justify-center gap-2 sm:mb-8">
             {rhythmTags.map((tag) => (
               <span
                 key={tag}
@@ -88,7 +88,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
 
           <h1
             data-hero-reveal
-            className="mx-auto max-w-4xl text-[clamp(3.5rem,10vw,7.5rem)] font-extrabold leading-[0.9] tracking-[-0.06em] text-foreground"
+            className="mx-auto max-w-4xl text-[clamp(2.9rem,13vw,7.5rem)] font-extrabold leading-[0.92] tracking-[-0.06em] text-foreground sm:text-[clamp(3.25rem,11vw,7.5rem)]"
           >
             Your developer
             <span className="block">rhythm,</span>
@@ -99,48 +99,55 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
 
           <p
             data-hero-reveal
-            className="mx-auto mt-8 max-w-3xl text-[1.05rem] leading-8 text-muted-foreground md:text-xl md:leading-9"
+            className="mx-auto mt-6 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-[1.05rem] sm:leading-8 md:text-xl md:leading-9"
           >
             Yevora pulls your repositories, pull requests, notes, focus sessions, and
             weekly streaks into a single command center so your momentum never disappears
             between tabs.
           </p>
 
-          <div data-hero-reveal className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div data-hero-reveal className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
             <Button
               asChild
               size="lg"
-              className="landing-button h-13 rounded-full px-7 text-[0.95rem]"
+              className="landing-button h-12 w-full rounded-full px-7 text-[0.95rem] sm:h-13 sm:w-auto"
             >
-              <Link href={ctaHref}>
-                {ctaLabel}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+              {isAuthenticated ? (
+                <Link href="/today">
+                  {ctaLabel}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              ) : (
+                <SmartSignInLink>
+                  {ctaLabel}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </SmartSignInLink>
+              )}
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="landing-outline-button h-13 rounded-full px-7 text-[0.95rem]"
+              className="landing-outline-button h-12 w-full rounded-full px-7 text-[0.95rem] sm:h-13 sm:w-auto"
             >
               <Link href="#proof">See the workflow</Link>
             </Button>
           </div>
 
-          <div data-hero-reveal className="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-3">
+          <div data-hero-reveal className="mx-auto mt-10 grid max-w-4xl gap-3 sm:mt-12 sm:gap-4 sm:grid-cols-3">
             {heroStats.map((item) => (
               <div
                 key={item.label}
                 data-hero-chip
                 className={cn(
-                  "landing-panel cursor-default rounded-[1.75rem] border border-white/85 bg-gradient-to-br p-5 shadow-[0_28px_64px_-48px_rgba(15,23,42,0.42)] backdrop-blur",
+                  "landing-panel cursor-default rounded-[1.35rem] border border-white/85 bg-gradient-to-br p-4 shadow-[0_28px_64px_-48px_rgba(15,23,42,0.42)] backdrop-blur sm:rounded-[1.75rem] sm:p-5",
                   item.tone
                 )}
               >
                 <p className="relative z-10 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   {item.label}
                 </p>
-                <p className="relative z-10 mt-3 text-[2rem] font-semibold tracking-[-0.04em]">
+                <p className="relative z-10 mt-3 text-[1.75rem] font-semibold tracking-[-0.04em] sm:text-[2rem]">
                   {item.value}
                 </p>
               </div>
@@ -148,7 +155,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
           </div>
         </div>
 
-        <div data-hero-showcase className="relative mx-auto mt-18 w-full max-w-6xl">
+        <div data-hero-showcase className="relative mx-auto mt-12 w-full max-w-6xl sm:mt-16 md:mt-18">
           <div
             data-landing-parallax
             className="landing-orb absolute -left-10 top-10 hidden h-40 w-40 rounded-full bg-primary/18 blur-3xl xl:block"
@@ -167,8 +174,8 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
             <p className="mt-2 text-lg font-semibold tracking-tight">8 commits today</p>
           </div>
 
-          <div className="landing-panel relative overflow-hidden rounded-[2.6rem] border border-white/80 bg-[linear-gradient(160deg,rgba(255,255,255,0.98),rgba(247,242,233,0.95))] p-5 shadow-[0_48px_150px_-70px_rgba(15,23,42,0.52)]">
-            <div className="mb-4 flex items-center justify-between rounded-[1.4rem] border border-white/75 bg-background/78 px-4 py-3 backdrop-blur">
+          <div className="landing-panel relative overflow-hidden rounded-[1.8rem] border border-white/80 bg-[linear-gradient(160deg,rgba(255,255,255,0.98),rgba(247,242,233,0.95))] p-3 shadow-[0_48px_150px_-70px_rgba(15,23,42,0.52)] sm:rounded-[2.6rem] sm:p-5">
+            <div className="mb-3 flex items-center justify-between rounded-[1.1rem] border border-white/75 bg-background/78 px-3 py-2.5 backdrop-blur sm:mb-4 sm:rounded-[1.4rem] sm:px-4 sm:py-3">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-primary/85" />
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
@@ -179,8 +186,8 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/75 bg-background/92 p-5 md:p-6">
-              <div className="landing-panel rounded-[1.45rem] border border-border/55 bg-[linear-gradient(135deg,rgba(255,255,255,1),rgba(248,244,237,0.96))] p-5 md:p-6">
+            <div className="rounded-[1.35rem] border border-white/75 bg-background/92 p-3 sm:rounded-[2rem] sm:p-5 md:p-6">
+              <div className="landing-panel rounded-[1.1rem] border border-border/55 bg-[linear-gradient(135deg,rgba(255,255,255,1),rgba(248,244,237,0.96))] p-4 sm:rounded-[1.45rem] sm:p-5 md:p-6">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -198,16 +205,16 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                   </Badge>
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-3 md:max-w-md">
+                <div className="mt-5 grid grid-cols-3 gap-2.5 md:max-w-md md:gap-3">
                   {overviewStats.map((item) => (
                     <div
                       key={item.label}
-                      className="landing-panel rounded-[1.1rem] border border-white/80 bg-white/82 px-4 py-3"
+                      className="landing-panel rounded-[1rem] border border-white/80 bg-white/82 px-3 py-3 sm:rounded-[1.1rem] sm:px-4"
                     >
                       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                         {item.label}
                       </p>
-                      <p className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
+                      <p className="mt-2 text-xl font-semibold tracking-[-0.04em] sm:text-2xl">
                         {item.value}
                       </p>
                     </div>
@@ -215,9 +222,9 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)]">
-                <div className="space-y-5">
-                  <div className="landing-panel rounded-[1.55rem] border border-border/55 bg-[linear-gradient(180deg,rgba(255,255,255,1),rgba(250,247,241,0.86))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+              <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:gap-5">
+                <div className="space-y-4 sm:space-y-5">
+                  <div className="landing-panel rounded-[1.2rem] border border-border/55 bg-[linear-gradient(180deg,rgba(255,255,255,1),rgba(250,247,241,0.86))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] sm:rounded-[1.55rem] sm:p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-base font-medium">Commit rhythm</p>
@@ -228,8 +235,8 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                       <GitPullRequest className="h-4 w-4 text-primary" />
                     </div>
 
-                    <div className="mt-6 rounded-[1.35rem] border border-border/40 bg-white/70 px-5 pb-5 pt-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                      <div className="flex h-48 items-end gap-3 md:gap-4">
+                    <div className="mt-5 rounded-[1.05rem] border border-border/40 bg-white/70 px-3 pb-4 pt-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:mt-6 sm:rounded-[1.35rem] sm:px-5 sm:pb-5 sm:pt-7">
+                      <div className="flex h-40 items-end gap-2 sm:h-48 sm:gap-3 md:gap-4">
                         {cadence.map((value, index) => (
                           <div key={value + index} className="flex flex-1 flex-col items-center gap-3">
                             <div
@@ -245,7 +252,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                     </div>
                   </div>
 
-                  <div className="landing-panel rounded-[1.55rem] border border-border/55 bg-white/90 p-5">
+                  <div className="landing-panel rounded-[1.2rem] border border-border/55 bg-white/90 p-4 sm:rounded-[1.55rem] sm:p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-base font-medium">Activity heatmap</p>
@@ -259,7 +266,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                       </div>
                     </div>
 
-                    <div className="mt-5 grid grid-cols-7 gap-2.5">
+                    <div className="mt-5 grid grid-cols-7 gap-2">
                       {heatmap.map((value, index) => (
                         <div
                           key={value + index}
@@ -271,8 +278,8 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                  <div className="landing-panel rounded-[1.55rem] border border-sky-500/15 bg-[linear-gradient(180deg,rgba(238,247,255,0.9),rgba(255,255,255,0.96))] p-5">
+                <div className="space-y-4 sm:space-y-5">
+                  <div className="landing-panel rounded-[1.2rem] border border-sky-500/15 bg-[linear-gradient(180deg,rgba(238,247,255,0.9),rgba(255,255,255,0.96))] p-4 sm:rounded-[1.55rem] sm:p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-base font-medium">Focus session</p>
@@ -283,8 +290,8 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                       <TimerReset className="h-4 w-4 text-sky-600" />
                     </div>
 
-                    <div className="mt-5 rounded-[1.3rem] border border-white/75 bg-white/80 p-5">
-                      <p className="text-[3.35rem] font-semibold leading-none tracking-[-0.06em]">
+                    <div className="mt-5 rounded-[1.1rem] border border-white/75 bg-white/80 p-4 sm:rounded-[1.3rem] sm:p-5">
+                      <p className="text-[2.65rem] font-semibold leading-none tracking-[-0.06em] sm:text-[3.35rem]">
                         18:42
                       </p>
                       <p className="mt-2 text-sm text-muted-foreground">
@@ -296,7 +303,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                       {focusDetails.map((item) => (
                         <div
                           key={item.label}
-                          className="landing-panel rounded-[1.05rem] border border-white/75 bg-white/82 px-4 py-3"
+                          className="landing-panel rounded-[1rem] border border-white/75 bg-white/82 px-4 py-3"
                         >
                           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                             {item.label}
@@ -309,7 +316,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                     </div>
                   </div>
 
-                  <div className="landing-panel rounded-[1.55rem] border border-border/55 bg-white/90 p-5">
+                  <div className="landing-panel rounded-[1.2rem] border border-border/55 bg-white/90 p-4 sm:rounded-[1.55rem] sm:p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-base font-medium">Developer notes</p>
@@ -320,7 +327,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                       <NotebookPen className="h-4 w-4 text-amber-600" />
                     </div>
 
-                    <div className="mt-4 rounded-[1.1rem] border border-border/55 bg-background/80 px-4 py-3">
+                    <div className="mt-4 rounded-[1rem] border border-border/55 bg-background/80 px-4 py-3">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Search className="h-4 w-4" />
                         auth polish
@@ -331,7 +338,7 @@ export function HeroSection({ isAuthenticated }: HeroSectionProps) {
                       {noteItems.map((item) => (
                         <div
                           key={item}
-                          className="landing-panel rounded-[1.1rem] border border-border/55 bg-muted/24 px-4 py-3 text-sm leading-6 text-muted-foreground"
+                          className="landing-panel rounded-[1rem] border border-border/55 bg-muted/24 px-4 py-3 text-sm leading-6 text-muted-foreground"
                         >
                           {item}
                         </div>

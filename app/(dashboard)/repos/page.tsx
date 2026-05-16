@@ -17,8 +17,19 @@ export default async function ReposPage() {
   return (
     <AnimatedGroup preset="slide" stagger={0.07} className="mx-auto max-w-[960px] space-y-6">
       <PageHeader
+        eyebrow="GitHub workspace"
         title="Repositories"
         description="Manage your repositories and track activity."
+        meta={
+          <>
+            <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-primary">
+              Tracked selections sync to your account
+            </span>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              Search, sort, and narrow your daily repo set
+            </span>
+          </>
+        }
       />
       <Suspense fallback={<ReposContentSkeleton />}>
         <ReposContent />

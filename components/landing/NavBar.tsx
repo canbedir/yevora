@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Session } from "next-auth";
 import { ArrowUpRight } from "lucide-react";
 
+import { SmartSignInLink } from "@/components/auth/SmartSignInLink";
 import { YevoraLogo } from "@/components/brand/YevoraLogo";
 import { AnimatedBackground } from "@/components/motion-primitives/AnimatedBackground";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -41,22 +42,22 @@ export function NavBar({ user }: NavBarProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/60 bg-[rgba(255,252,247,0.68)] backdrop-blur-2xl">
-      <div className="mx-auto flex h-20 w-full max-w-[88rem] items-center justify-between px-5 md:px-8">
+      <div className="mx-auto flex h-18 w-full max-w-[88rem] items-center justify-between px-4 sm:h-20 sm:px-5 md:px-8">
         <Link
           href="/"
-          className="group flex items-center gap-3 rounded-full pr-2 transition-colors duration-200 ease-out"
+          className="group flex items-center gap-2 rounded-full pr-2 transition-colors duration-200 ease-out sm:gap-3"
         >
-          <div className="flex h-12 w-14 shrink-0 items-center justify-center transition-transform duration-200 ease-out group-hover:scale-[1.02]">
+          <div className="flex h-10 w-12 shrink-0 items-center justify-center transition-transform duration-200 ease-out group-hover:scale-[1.02] sm:h-12 sm:w-14">
             <YevoraLogo
-              className="h-12 w-14 drop-shadow-[0_12px_22px_rgba(234,88,12,0.16)]"
+              className="h-10 w-12 drop-shadow-[0_12px_22px_rgba(234,88,12,0.16)] sm:h-12 sm:w-14"
               priority
             />
           </div>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+          <div className="min-w-0">
+            <p className="hidden text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground sm:block">
               DevBoard
             </p>
-            <p className="text-lg font-semibold tracking-tight">Yevora</p>
+            <p className="text-base font-semibold tracking-tight sm:text-lg">Yevora</p>
           </div>
         </Link>
 
@@ -106,11 +107,11 @@ export function NavBar({ user }: NavBarProps) {
               </div>
             </Link>
           ) : (
-            <Button asChild className="landing-button rounded-full px-5">
-              <Link href="/login">
+            <Button asChild className="landing-button rounded-full px-4 sm:px-5">
+              <SmartSignInLink>
                 Sign in
                 <ArrowUpRight className="ml-2 h-4 w-4" />
-              </Link>
+              </SmartSignInLink>
             </Button>
           )}
         </div>

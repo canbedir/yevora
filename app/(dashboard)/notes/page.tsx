@@ -28,8 +28,19 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
       className="mx-auto flex min-h-[calc(100vh-7rem)] max-w-[960px] flex-col space-y-6"
     >
       <PageHeader
+        eyebrow="Knowledge base"
         title="Notes"
         description="Your knowledge base and quick notes."
+        meta={
+          <>
+            <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-primary">
+              Autosave on
+            </span>
+            <span className="inline-flex rounded-full border border-neutral-200 bg-white/85 px-3 py-1 text-xs font-medium text-neutral-600">
+              Markdown preview ready
+            </span>
+          </>
+        }
         actions={
           <Button asChild>
             <Link href="/notes">
@@ -74,10 +85,10 @@ async function NotesContent({ searchParams }: NotesPageProps) {
 
   return (
     <div className="grid flex-1 gap-4 overflow-hidden lg:grid-cols-[320px_minmax(0,1fr)]">
-      <div className="yev-card flex min-h-[360px] flex-col overflow-hidden">
+      <div className="yev-card flex min-h-[320px] flex-col overflow-hidden sm:min-h-[360px]">
         <NoteList notes={notes} selectedId={selectedId} />
       </div>
-      <div className="yev-card flex min-h-[520px] flex-col overflow-hidden">
+      <div className="yev-card flex min-h-[440px] flex-col overflow-hidden sm:min-h-[520px]">
         <NoteEditor key={selectedNote?.id ?? "new-note"} note={selectedNote} />
       </div>
     </div>

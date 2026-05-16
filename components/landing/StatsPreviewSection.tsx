@@ -12,7 +12,7 @@ const columns = [
 
 export function StatsPreviewSection() {
   return (
-    <section id="proof" data-landing-section className="relative overflow-hidden py-28">
+    <section id="proof" data-landing-section className="relative overflow-hidden py-20 sm:py-24 md:py-28">
       <div
         data-landing-parallax
         className="landing-orb absolute left-[8%] top-24 h-36 w-36 rounded-full bg-primary/10 blur-3xl"
@@ -21,7 +21,7 @@ export function StatsPreviewSection() {
         data-landing-parallax
         className="landing-orb landing-orb-delay absolute right-[10%] bottom-18 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl"
       />
-      <div className="mx-auto grid w-full max-w-[88rem] gap-16 px-5 md:px-8 xl:grid-cols-[minmax(0,0.92fr)_minmax(520px,1.08fr)] xl:items-center">
+      <div className="mx-auto grid w-full max-w-[88rem] gap-10 px-5 md:gap-14 md:px-8 xl:grid-cols-[minmax(0,0.92fr)_minmax(520px,1.08fr)] xl:items-center xl:gap-16">
         <div data-landing-item="section" className="max-w-xl xl:pr-4">
           <Badge
             variant="outline"
@@ -29,16 +29,16 @@ export function StatsPreviewSection() {
           >
             Weekly visibility
           </Badge>
-          <h2 className="mt-6 text-4xl font-bold tracking-tight md:text-5xl">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             The dashboard should answer one question fast:
             <span className="block text-muted-foreground">am I actually moving this week?</span>
           </h2>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+          <p className="mt-5 text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg sm:leading-8">
             Yevora turns raw activity into signals you can act on. Commit graphs, focus time,
             searchable notes, and streak indicators sit next to each other so you can read the
             whole story instead of isolated metrics.
           </p>
-          <div data-landing-stagger="proof-copy" className="mt-10 space-y-4">
+          <div data-landing-stagger="proof-copy" className="mt-8 space-y-3 sm:mt-10 sm:space-y-4">
             {[
               "GitHub activity stays visible while you work, not after the fact.",
               "Markdown notes become searchable context for tomorrow-you.",
@@ -47,7 +47,7 @@ export function StatsPreviewSection() {
               <div
                 key={item}
                 data-landing-item="group"
-                className="landing-panel flex items-start gap-3 rounded-[1.35rem] border border-white/80 bg-background/76 px-4 py-4 shadow-[0_18px_50px_-44px_rgba(15,23,42,0.42)]"
+                className="landing-panel flex items-start gap-3 rounded-[1.15rem] border border-white/80 bg-background/76 px-4 py-4 shadow-[0_18px_50px_-44px_rgba(15,23,42,0.42)] sm:rounded-[1.35rem]"
               >
                 <Sparkles className="mt-1 h-4 w-4 shrink-0 text-primary" />
                 <p className="text-muted-foreground">{item}</p>
@@ -58,8 +58,8 @@ export function StatsPreviewSection() {
 
         <div data-landing-item="section" className="relative">
           <div className="absolute inset-0 -z-10 rounded-[2.4rem] bg-gradient-to-br from-primary/12 via-transparent to-sky-500/12 blur-2xl" />
-          <div className="landing-panel overflow-hidden rounded-[2.4rem] border border-white/85 bg-background/92 shadow-[0_40px_130px_-62px_rgba(15,23,42,0.52)]">
-            <div className="border-b border-border/70 px-6 py-5">
+          <div className="landing-panel overflow-hidden rounded-[1.7rem] border border-white/85 bg-background/92 shadow-[0_40px_130px_-62px_rgba(15,23,42,0.52)] sm:rounded-[2.4rem]">
+            <div className="border-b border-border/70 px-4 py-4 sm:px-6 sm:py-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -75,8 +75,8 @@ export function StatsPreviewSection() {
               </div>
             </div>
 
-            <div className="grid gap-5 p-6 xl:grid-cols-[1fr_0.88fr]">
-              <div className="landing-panel rounded-[1.6rem] border border-border/60 bg-[linear-gradient(180deg,rgba(255,255,255,1),rgba(249,247,241,0.92))] p-5">
+            <div className="grid gap-4 p-4 sm:gap-5 sm:p-6 xl:grid-cols-[1fr_0.88fr]">
+              <div className="landing-panel rounded-[1.2rem] border border-border/60 bg-[linear-gradient(180deg,rgba(255,255,255,1),rgba(249,247,241,0.92))] p-4 sm:rounded-[1.6rem] sm:p-5">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-base font-medium">Commit + focus cadence</p>
@@ -84,7 +84,7 @@ export function StatsPreviewSection() {
                   </div>
                   <Flame className="h-4 w-4 text-primary" />
                 </div>
-                <div className="mt-7 flex h-48 items-end gap-3">
+                <div className="mt-6 flex h-44 items-end gap-2.5 sm:mt-7 sm:h-48 sm:gap-3">
                   {columns.map((column) => (
                     <div key={column.day} className="flex flex-1 flex-col items-center gap-3">
                       <div className="flex w-full flex-col justify-end gap-1">
@@ -106,10 +106,10 @@ export function StatsPreviewSection() {
                 </div>
               </div>
 
-              <div className="space-y-5">
-                <div className="landing-panel rounded-[1.6rem] border border-border/60 bg-card p-5">
+              <div className="space-y-4 sm:space-y-5">
+                <div className="landing-panel rounded-[1.2rem] border border-border/60 bg-card p-4 sm:rounded-[1.6rem] sm:p-5">
                   <p className="text-base font-medium">Searchable notes</p>
-                  <div className="mt-4 rounded-[1.25rem] border border-border/60 bg-background px-4 py-3">
+                  <div className="mt-4 rounded-[1rem] border border-border/60 bg-background px-4 py-3 sm:rounded-[1.25rem]">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Search className="h-4 w-4" />
                       retry oauth callback
@@ -122,7 +122,7 @@ export function StatsPreviewSection() {
                     ].map((item) => (
                       <div
                         key={item}
-                        className="landing-panel rounded-[1.15rem] bg-muted/35 px-4 py-3 text-sm leading-6 text-muted-foreground"
+                        className="landing-panel rounded-[1rem] bg-muted/35 px-4 py-3 text-sm leading-6 text-muted-foreground sm:rounded-[1.15rem]"
                       >
                         {item}
                       </div>
@@ -130,9 +130,9 @@ export function StatsPreviewSection() {
                   </div>
                 </div>
 
-                <div className="landing-panel rounded-[1.6rem] border border-border/60 bg-card p-5">
+                <div className="landing-panel rounded-[1.2rem] border border-border/60 bg-card p-4 sm:rounded-[1.6rem] sm:p-5">
                   <p className="text-base font-medium">What you notice instantly</p>
-                  <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3">
                     {[
                       { label: "Open PRs", value: "05" },
                       { label: "Commits today", value: "08" },
@@ -141,7 +141,7 @@ export function StatsPreviewSection() {
                     ].map((item) => (
                       <div
                         key={item.label}
-                        className="landing-panel rounded-[1.15rem] border border-border/60 bg-muted/25 px-4 py-4"
+                        className="landing-panel rounded-[1rem] border border-border/60 bg-muted/25 px-3 py-3 sm:rounded-[1.15rem] sm:px-4 sm:py-4"
                       >
                         <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
                           {item.label}

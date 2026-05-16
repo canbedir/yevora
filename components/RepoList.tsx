@@ -287,7 +287,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="inline-flex rounded-md border border-neutral-200 bg-white p-0.5">
           <button
             type="button"
@@ -308,7 +308,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
             All
           </button>
         </div>
-        <div className="text-right">
+        <div className="sm:text-right">
           <p className="text-xs text-neutral-500">
             {displayedRepos.length} shown, {privateRepos} private
           </p>
@@ -395,7 +395,7 @@ export function RepoList({ repos, initialTrackedRepoIds, hasSavedSelection }: Re
                     <CircleDot className="h-3.5 w-3.5" />
                     {repo.open_issues_count}
                   </span>
-                  <span className="ml-auto" suppressHydrationWarning>
+                  <span className="w-full text-left sm:ml-auto sm:w-auto sm:text-right" suppressHydrationWarning>
                     {getRelativeTime(repo.updated_at)}
                   </span>
                 </span>
