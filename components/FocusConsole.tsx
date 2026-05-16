@@ -22,12 +22,29 @@ import { cn } from "@/lib/utils";
 
 const FOCUS_PRESETS = [15, 25, 45, 60];
 const STORAGE_KEY = "yevora.focusSettings";
+const TIMER_STATE_KEY = "yevora.focusTimerState";
 const DEFAULT_FOCUS_SETTINGS = { focusMinutes: 25, breakMinutes: 5 };
 type TimerMode = "focus" | "break";
 
 interface StoredFocusSettings {
   focusMinutes: number;
   breakMinutes: number;
+}
+
+interface StoredTimerState {
+  focusMinutes: number;
+  breakMinutes: number;
+  timerMode: TimerMode;
+  timeLeft: number;
+  isRunning: boolean;
+  taskLabel: string;
+  repositoryName: string;
+  repositoryUrl: string;
+  commitCount: number;
+  outputSummary: string;
+  isAwaitingWrapUp: boolean;
+  hasCompletedBreak: boolean;
+  endsAt: number | null;
 }
 
 interface PomodoroSessionData {
@@ -78,6 +95,16 @@ function normalizeCommitCount(value: unknown) {
   return Math.min(999, Math.max(0, Math.round(numberValue)));
 }
 
+function normalizeSeconds(value: unknown, fallback: number) {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return fallback;
+  }
+
+  return Math.min(180 * 60, Math.max(0, Math.round(numberValue)));
+}
+
 function getLocalDateKey(date: Date) {
   return [
     date.getFullYear(),
@@ -101,6 +128,44 @@ function getTimerTextClassName(totalSeconds: number) {
   }
 
   return "text-[clamp(2.7rem,6.8vw,3.9rem)]";
+}
+
+function readStoredTimerState(): StoredTimerState | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(TIMER_STATE_KEY);
+
+    if (!storedValue) {
+      return null;
+    }
+
+    const parsed = JSON.parse(storedValue) as Partial<StoredTimerState>;
+    const focusMinutes = normalizeMinutes(parsed.focusMinutes, DEFAULT_FOCUS_SETTINGS.focusMinutes);
+    const breakMinutes = normalizeMinutes(parsed.breakMinutes, DEFAULT_FOCUS_SETTINGS.breakMinutes);
+    const timerMode: TimerMode = parsed.timerMode === "break" ? "break" : "focus";
+    const fallbackSeconds = (timerMode === "focus" ? focusMinutes : breakMinutes) * 60;
+
+    return {
+      focusMinutes,
+      breakMinutes,
+      timerMode,
+      timeLeft: normalizeSeconds(parsed.timeLeft, fallbackSeconds),
+      isRunning: Boolean(parsed.isRunning),
+      taskLabel: typeof parsed.taskLabel === "string" ? parsed.taskLabel : "",
+      repositoryName: typeof parsed.repositoryName === "string" ? parsed.repositoryName : "",
+      repositoryUrl: typeof parsed.repositoryUrl === "string" ? parsed.repositoryUrl : "",
+      commitCount: normalizeCommitCount(parsed.commitCount),
+      outputSummary: typeof parsed.outputSummary === "string" ? parsed.outputSummary : "",
+      isAwaitingWrapUp: Boolean(parsed.isAwaitingWrapUp),
+      hasCompletedBreak: Boolean(parsed.hasCompletedBreak),
+      endsAt: typeof parsed.endsAt === "number" && Number.isFinite(parsed.endsAt) ? parsed.endsAt : null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 function playBeep(audioContextRef: { current: AudioContext | null }) {
@@ -145,6 +210,7 @@ export function FocusConsole() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasLoadedStoredSettings, setHasLoadedStoredSettings] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const endsAtRef = useRef<number | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
   const activeMinutes = timerMode === "focus" ? focusMinutes : breakMinutes;
@@ -173,12 +239,76 @@ export function FocusConsole() {
     ? { duration: 0 }
     : { duration: 0.34, ease: [0.22, 1, 0.36, 1] as const };
 
+  const clearOutputFields = () => {
+    setRepositoryName("");
+    setRepositoryUrl("");
+    setCommitCount(0);
+    setOutputSummary("");
+  };
+
+  const finishTimer = (mode: TimerMode, { playSound = true }: { playSound?: boolean } = {}) => {
+    endsAtRef.current = null;
+    setTimeLeft(0);
+    setIsRunning(false);
+    setSaveError(null);
+
+    if (mode === "focus") {
+      setIsAwaitingWrapUp(true);
+      setHasCompletedBreak(false);
+    } else {
+      setHasCompletedBreak(true);
+      setIsAwaitingWrapUp(false);
+    }
+
+    if (playSound) {
+      playBeep(audioContextRef);
+    }
+  };
+
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
       const storedSettings = readStoredSettings();
-      setFocusMinutes(storedSettings.focusMinutes);
-      setBreakMinutes(storedSettings.breakMinutes);
-      setTimeLeft(storedSettings.focusMinutes * 60);
+      const storedTimerState = readStoredTimerState();
+
+      if (storedTimerState) {
+        setFocusMinutes(storedTimerState.focusMinutes);
+        setBreakMinutes(storedTimerState.breakMinutes);
+        setTimerMode(storedTimerState.timerMode);
+        setTaskLabel(storedTimerState.taskLabel);
+        setRepositoryName(storedTimerState.repositoryName);
+        setRepositoryUrl(storedTimerState.repositoryUrl);
+        setCommitCount(storedTimerState.commitCount);
+        setOutputSummary(storedTimerState.outputSummary);
+
+        if (storedTimerState.isRunning && storedTimerState.endsAt) {
+          const remainingSeconds = Math.max(0, Math.ceil((storedTimerState.endsAt - Date.now()) / 1000));
+
+          if (remainingSeconds === 0) {
+            endsAtRef.current = null;
+            setTimeLeft(0);
+            setIsRunning(false);
+            setIsAwaitingWrapUp(storedTimerState.timerMode === "focus");
+            setHasCompletedBreak(storedTimerState.timerMode === "break");
+          } else {
+            endsAtRef.current = storedTimerState.endsAt;
+            setTimeLeft(remainingSeconds);
+            setIsRunning(true);
+            setIsAwaitingWrapUp(false);
+            setHasCompletedBreak(false);
+          }
+        } else {
+          endsAtRef.current = null;
+          setTimeLeft(storedTimerState.timeLeft);
+          setIsRunning(false);
+          setIsAwaitingWrapUp(storedTimerState.isAwaitingWrapUp);
+          setHasCompletedBreak(storedTimerState.hasCompletedBreak);
+        }
+      } else {
+        setFocusMinutes(storedSettings.focusMinutes);
+        setBreakMinutes(storedSettings.breakMinutes);
+        setTimeLeft(storedSettings.focusMinutes * 60);
+      }
+
       setHasLoadedStoredSettings(true);
     });
 
@@ -192,6 +322,44 @@ export function FocusConsole() {
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ focusMinutes, breakMinutes }));
   }, [focusMinutes, breakMinutes, hasLoadedStoredSettings]);
+
+  useEffect(() => {
+    if (!hasLoadedStoredSettings) {
+      return;
+    }
+
+    const snapshot: StoredTimerState = {
+      focusMinutes,
+      breakMinutes,
+      timerMode,
+      timeLeft,
+      isRunning,
+      taskLabel,
+      repositoryName,
+      repositoryUrl,
+      commitCount,
+      outputSummary,
+      isAwaitingWrapUp,
+      hasCompletedBreak,
+      endsAt: isRunning ? endsAtRef.current : null,
+    };
+
+    window.localStorage.setItem(TIMER_STATE_KEY, JSON.stringify(snapshot));
+  }, [
+    breakMinutes,
+    commitCount,
+    focusMinutes,
+    hasCompletedBreak,
+    hasLoadedStoredSettings,
+    isAwaitingWrapUp,
+    isRunning,
+    outputSummary,
+    repositoryName,
+    repositoryUrl,
+    taskLabel,
+    timeLeft,
+    timerMode,
+  ]);
 
   useEffect(() => {
     let isMounted = true;
@@ -210,26 +378,24 @@ export function FocusConsole() {
     };
   }, []);
 
-  const clearOutputFields = () => {
-    setRepositoryName("");
-    setRepositoryUrl("");
-    setCommitCount(0);
-    setOutputSummary("");
-  };
-
   const startBreak = () => {
+    const breakSeconds = breakMinutes * 60;
     setTimerMode("break");
-    setTimeLeft(breakMinutes * 60);
+    setTimeLeft(breakSeconds);
     setHasCompletedBreak(false);
+    setIsAwaitingWrapUp(false);
+    endsAtRef.current = Date.now() + breakSeconds * 1000;
     setIsRunning(true);
   };
 
   const prepareNextFocus = ({ start = false }: { start?: boolean } = {}) => {
+    const focusSeconds = focusMinutes * 60;
     setTimerMode("focus");
-    setTimeLeft(focusMinutes * 60);
+    setTimeLeft(focusSeconds);
     setHasCompletedBreak(false);
     setIsAwaitingWrapUp(false);
     setSaveError(null);
+    endsAtRef.current = start ? Date.now() + focusSeconds * 1000 : null;
     setIsRunning(start);
     clearOutputFields();
   };
@@ -272,30 +438,35 @@ export function FocusConsole() {
   };
 
   useEffect(() => {
-    if (!isRunning || timeLeft === 0) {
+    if (!isRunning) {
       return;
     }
 
-    const interval = window.setInterval(() => {
-      if (timeLeft <= 1) {
-        window.clearInterval(interval);
-        setTimeLeft(0);
-        setIsRunning(false);
-        if (timerMode === "focus") {
-          setIsAwaitingWrapUp(true);
-        } else {
-          setHasCompletedBreak(true);
-        }
-        setSaveError(null);
-        playBeep(audioContextRef);
+    const tick = () => {
+      const endsAt = endsAtRef.current;
+
+      if (!endsAt) {
         return;
       }
 
-      setTimeLeft(timeLeft - 1);
-    }, 1000);
+      const remainingSeconds = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+
+      if (remainingSeconds === 0) {
+        finishTimer(timerMode);
+        return;
+      }
+
+      setTimeLeft(remainingSeconds);
+    };
+
+    tick();
+
+    const interval = window.setInterval(() => {
+      tick();
+    }, 250);
 
     return () => window.clearInterval(interval);
-  }, [isRunning, timeLeft, timerMode]);
+  }, [isRunning, timerMode]);
 
   const changeFocusMinutes = (minutes: number) => {
     const nextMinutes = normalizeMinutes(minutes, focusMinutes);
@@ -303,6 +474,7 @@ export function FocusConsole() {
     if (timerMode === "focus") {
       setTimeLeft(nextMinutes * 60);
     }
+    endsAtRef.current = null;
     setIsRunning(false);
     setIsAwaitingWrapUp(false);
     setHasCompletedBreak(false);
@@ -317,11 +489,13 @@ export function FocusConsole() {
       setTimeLeft(nextMinutes * 60);
       setHasCompletedBreak(false);
     }
+    endsAtRef.current = null;
     setIsRunning(false);
     setSaveError(null);
   };
 
   const resetTimer = () => {
+    endsAtRef.current = null;
     setIsRunning(false);
     setTimeLeft(totalSeconds);
     setIsAwaitingWrapUp(false);
@@ -356,7 +530,16 @@ export function FocusConsole() {
       return;
     }
 
-    setIsRunning((currentValue) => !currentValue);
+    if (isRunning) {
+      const remainingSeconds = endsAtRef.current ? Math.max(0, Math.ceil((endsAtRef.current - Date.now()) / 1000)) : timeLeft;
+      endsAtRef.current = null;
+      setTimeLeft(remainingSeconds);
+      setIsRunning(false);
+      return;
+    }
+
+    endsAtRef.current = Date.now() + timeLeft * 1000;
+    setIsRunning(true);
   };
 
   return (
