@@ -35,9 +35,10 @@ const toneStyles: Record<QueueTone, string> = {
 interface QueueSignalListProps {
   items: QueueSignalItem[];
   variant: "today" | "notification";
+  onItemSelect?: () => void;
 }
 
-export function QueueSignalList({ items, variant }: QueueSignalListProps) {
+export function QueueSignalList({ items, variant, onItemSelect }: QueueSignalListProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const layoutId = variant === "today" ? "today-queue-hover" : "notification-queue-hover";
@@ -102,6 +103,7 @@ export function QueueSignalList({ items, variant }: QueueSignalListProps) {
           onMouseEnter: () => setHoveredId(item.id),
           onFocus: () => setHoveredId(item.id),
           onBlur: () => setHoveredId((currentValue) => (currentValue === item.id ? null : currentValue)),
+          onClick: () => onItemSelect?.(),
           className: rowClassName,
         };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Bell,
   CheckCircle2,
@@ -26,11 +26,17 @@ export function NotificationCenter({
   hasError: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const [open, setOpen] = useState(false);
 
   const visibleCount = useMemo(() => Math.min(items.length, 9), [items.length]);
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+  };
+
   return (
-    <DropdownMenu modal={false} onOpenChange={onOpenChange}>
+    <DropdownMenu modal={false} open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-neutral-600 outline-none transition-colors hover:bg-neutral-100 hover:text-neutral-950 focus-visible:ring-2 focus-visible:ring-primary/30">
           <Bell className="h-4 w-4" />
@@ -58,7 +64,7 @@ export function NotificationCenter({
           ) : hasError ? (
             <QueueState title="Could not load queue" detail="Try opening notifications again in a moment." />
           ) : items.length > 0 ? (
-            <QueueSignalList items={items} variant="notification" />
+            <QueueSignalList items={items} variant="notification" onItemSelect={() => setOpen(false)} />
           ) : (
             <QueueState
               icon={<CheckCircle2 className="h-5 w-5 text-emerald-600" />}
